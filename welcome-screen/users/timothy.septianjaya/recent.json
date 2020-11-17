@@ -1,0 +1,50 @@
+{
+    "Test": {
+        "NUKE": [
+            {
+                "path": "C:/Users/timothy.septianjaya/Desktop/KBFXTemplate.nk", 
+                "access_date": "2020/11/17 11:21:46"
+            }, 
+            {
+                "path": "C:/Users/timothy.septianjaya/Desktop/tes/blenderCrypto.nk", 
+                "access_date": "2020/11/16 21:57:10"
+            }, 
+            {
+                "path": "C:/Users/timothy.septianjaya/Desktop/tes/errorcheck.nk", 
+                "access_date": "2020/11/16 21:57:42"
+            }, 
+            {
+                "path": "C:/Users/timothy.septianjaya/Desktop/tes/ti_ZDefocus.nk", 
+                "access_date": "2020/11/17 11:19:48"
+            }, 
+            {
+                "path": "C:/Users/timothy.septianjaya/Desktop/tes/rwa.nk", 
+                "access_date": "2020/11/17 11:20:00"
+            }
+        ], 
+        "MAYA": [], 
+        "BLENDER": []
+    }, 
+    "OllieAndFriends": {
+        "NUKE": [
+            {
+                "path": "O:/Ollie/Episodes/EP707A/Scenes/SH098.40/OLI_EP707A_SH098.40_LGT_01.nk", 
+                "access_date": "2020/11/16 22:26:00"
+            }, 
+            {
+                "path": "O:/Ollie/Episodes/EP707A/Scenes/SH085.00/OLI_EP707A_SH085.00_LGT_01.nk", 
+                "access_date": "2020/11/16 22:16:32"
+            }, 
+            {
+                "path": "O:/Ollie/Episodes/EP707A/Scenes/SH095.00/OLI_EP707A_SH095.00_LGT_01.nk", 
+                "access_date": "2020/11/16 22:25:47"
+            }, 
+            {
+                "path": "O:/Ollie/Episodes/EP707A/Scenes/SH060.00/OLI_EP707A_SH060.00_LGT_01.nk", 
+                "access_date": "2020/11/16 22:29:10"
+            }
+        ], 
+        "MAYA": [], 
+        "BLENDER": []
+    }
+}
