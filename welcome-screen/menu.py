@@ -25,4 +25,4 @@ if ws.settings['startup_show']:
 	ws.show()
 
 menu = nuke.menu('Nuke')
-menu.addCommand( 'General/Welcome Screen', ws.show )
+menu.addCommand( 'General/Welcome Screen', ws.show, 'ctrl+w' )
