@@ -1,6 +1,20 @@
-import nuke
-import config
 from datetime import datetime
+import sys
+import os
+
+main_folder = os.path.normpath(os.path.join(__file__, "..", ".."))
+if not main_folder in sys.path:
+    sys.path.append(main_folder)
+
+from gui import WelcomeScreen
+import gui
+import config
+
+ws = WelcomeScreen()
+if ws.settings['startup_show']:
+	ws.show()
+
+import nuke
 
 def addRecent():
 	nkPath = nuke.Root().knob("name").value()
@@ -17,12 +31,7 @@ def addRecent():
 		config.save_recent(recent)
 
 nuke.addOnScriptLoad(addRecent)
-
-from gui import WelcomeScreen
-
-ws = WelcomeScreen()
-if ws.settings['startup_show']:
-	ws.show()
+nuke.addOnScriptSave(addRecent)
 
 menu = nuke.menu('Nuke')
-menu.addCommand( 'General/Welcome Screen', ws.show, 'ctrl+w' )
+menu.addCommand( 'General/Welcome Screen', gui.show, 'ctrl+w' )

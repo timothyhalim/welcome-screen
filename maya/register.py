@@ -1,15 +1,28 @@
-from PySide.QtGui import *
-from PySide.QtCore import *
+import sys
+import os
 
-from component import *
-from command import nukecommand
-reload(nukecommand)
-from config import *
+
+user_path = os.path.expanduser('~')
+user_path = os.path.join(user_path, "..") if user_path.endswith("Documents") else user_path
+script_path = os.path.normpath(os.path.join(user_path, "Documents", "Timo", "Scripts", "DCC"))
+
+main_folder = os.path.normpath(os.path.join(script_path, 'welcome-screen'))
+if not main_folder in sys.path:
+    sys.path.append(main_folder)
+    
+try:
+    from PySide2.QtWidgets import *
+except:
+    from PySide.QtGui import *
+    from PySide.QtCore import *
+
+from component import QCustomLabel, QRecentLabel
+from config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
 class WelcomeScreen(QWidget):
     def __init__(self, parent=None):
         super(WelcomeScreen, self).__init__(parent)
-        
+
         self.settings = get_settings()
         self.setup_ui()
 
@@ -40,8 +53,7 @@ class WelcomeScreen(QWidget):
         self.app = QApplication.instance()
         self.app.focusChanged.connect(self.on_top)
 
-        if APP == "NUKE":
-            self.setStyleSheet("background-color:rgb(50, 50, 50)")
+        self.setStyleSheet("background-color:rgb(50, 50, 50)")
 
         # Left Side
         self.new_btn = QCustomLabel(name="New", icon="new")
@@ -92,17 +104,8 @@ class WelcomeScreen(QWidget):
         self.master_layout.addLayout(self.main_layout)
         self.master_layout.addSpacing(15)
         self.master_layout.addLayout(self.footer_layout)
-
-        # Signal
-        self.connect(self.new_btn, SIGNAL('clicked()'), self.new_cmd)
-        self.connect(self.open_btn, SIGNAL('clicked()'), self.open_cmd)
-        self.connect(self.recent_btn, SIGNAL('clicked()'), self.show_recent)
-        self.connect(self.setting_btn, SIGNAL('clicked()'), self.show_setting)
-        self.connect(self.about_btn, SIGNAL('clicked()'), self.show_about)
-
-        self.show_on_startup.clicked.connect(self.update_startup_settings)
-        self.close_btn.clicked.connect(self.close)
-
+        
+        
     def setup_recent_widget(self):
         self.recent_widget = QWidget()
         self.recent_label = QLabel("Recent Files:")
@@ -144,12 +147,7 @@ class WelcomeScreen(QWidget):
         self.recent_widget_layout.addWidget(self.recent_list)
         self.recent_widget_layout.addLayout(self.recent_page_layout)
         
-        # Signal
-        self.recent_search.textChanged.connect(self.search_recent)
-        self.recent_list.file.connect(self.open_cmd)
-        self.connect(self.recent_page_prev, SIGNAL('clicked()'), self.prev_page)
-        self.connect(self.recent_page_next, SIGNAL('clicked()'), self.next_page)
-
+    
         
     def setup_settings_widget(self):
         self.settings_widget = QWidget()
@@ -246,11 +244,11 @@ class WelcomeScreen(QWidget):
 
     def new_cmd(self):
         self.post_open()
-        nukecommand.new_scene(new_window=self.settings["new_window"])
+        cmd.new_scene(new_window=self.settings["new_window"])
 
     def open_cmd(self, filepath=""):
         self.post_open()
-        nukecommand.open_file(filepath, new_window=self.settings["new_window"])
+        cmd.open_file(filepath, new_window=self.settings["new_window"])
 
     def show_recent(self):
         self.recent_widget.show()

@@ -1,15 +1,14 @@
 import os
 import json
+import sys
 
-try:
-    import nuke
-    APP = "NUKE"
-except:
-    APP = None
+import re
+
+APP = re.findall("(\S*?)[\.\d]", os.path.basename(sys.executable))[0].upper()
 
 ICON_PATH = os.path.normpath(os.path.join(__file__, "..", "icons")).replace("\\", "/")
 SETTING_PATH = os.path.normpath(os.path.join(__file__, "..", "users", os.environ.get('USERNAME'))).replace("\\", "/")
-PROJECT = os.environ.get("PROJECTNAME", "Nuke")
+PROJECT = os.environ.get("PROJECTNAME", "Project")
 
 def get_settings():
     if os.path.isfile(SETTING_PATH+"/settings.json"):
@@ -43,7 +42,8 @@ def get_recent():
             }
         }
         save_recent(recent)
-    if not recent.get(PROJECT, None):
+    
+    if recent.get(PROJECT, None) is None:
         recent.update({
             PROJECT : {
                 "BLENDER" : [],

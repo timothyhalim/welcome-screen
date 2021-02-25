@@ -1,5 +1,10 @@
-from PySide.QtGui import *
-from PySide.QtCore import *
+try:
+    from PySide2.QtWidgets import *
+    from PySide2.QtGui     import *
+    from PySide2.QtCore    import *
+except:
+    from PySide.QtGui  import *
+    from PySide.QtCore import *
 
 import os
 
@@ -31,5 +36,6 @@ class QRecentLabel(QLabel):
 
     def mouseReleaseEvent(self,event):
         self.setText('<font color = #FFC132 size = %s face = %s>%s</font>' % (self.textSize, self.textFont, self.text))
-        self.emit(SIGNAL('openScript()'))
+        if self.filePath:
+            self.emit(SIGNAL('openScript()'))
         
