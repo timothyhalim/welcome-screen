@@ -10,7 +10,7 @@ from component import QCustomLabel, QRecentLabel
 from config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
 if APP == "NUKE":
-    from command import nukecommand as cmd
+    from command.nuke import nukecommand as cmd
 
     def get_window():
         for w in QApplication.topLevelWidgets():
@@ -18,7 +18,7 @@ if APP == "NUKE":
                 return w
 
 elif APP == "MAYA":
-    from command import mayacommand as cmd
+    from command.maya import mayacommand as cmd
 
     def get_window():
         for w in QApplication.topLevelWidgets():
