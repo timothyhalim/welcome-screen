@@ -2,13 +2,11 @@
 from PySide.QtGui import *
 from PySide.QtCore import *
 
-from time import sleep
-
-import nuke
+from maya import cmds
 
 def check():
     ok = True
-    if nuke.modified():
+    if cmds.file(mf=True, q=True):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
         msg.setText("File is not saved continue?")
@@ -19,30 +17,37 @@ def check():
         ok = ret == 1024
     return ok
 
-def clear_script():
+def clear_scene():
     if check():
-        nuke.scriptClear()
-        # sleep(1)
+        cmds.file(new=True, f=True)
 
 def open_file(filepath = "", new_window = False):
+    if filepath == "":
+        multipleFilters = "Maya Files (*.ma *.mb);;Maya ASCII (*.ma);;Maya Binary (*.mb);;All Files (*.*)"
+        result = cmds.fileDialog2(fileFilter=multipleFilters, dialogStyle=2, okc="Open", fileMode=1)
+        if result:
+            filepath = result[0]
+        else:
+            return
+        
     if get_open_file() and get_open_file() != filepath:
         if not new_window:
-            clear_script()
-            nuke.scriptOpen(filepath)
+            # clear_scene()
+            cmds.file(filepath, o=True, f=True)
         else:
             if check():
-                nuke.scriptOpen(filepath)
+                cmds.file(filepath, o=True, f=True)
     else:
         try:
-            nuke.scriptOpen(filepath)
+            cmds.file(filepath, o=True, f=True)
         except:
             pass
 
 def new_scene(new_window = False):
     if not new_window:
-        clear_script()
+        clear_scene()
     else:
-        nuke.scriptNew()
+        clear_scene()
 
 def get_open_file():
-    return nuke.Root().knob("name").value()
+    return cmds.file(sn=True, q=True)

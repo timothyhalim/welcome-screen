@@ -2,13 +2,11 @@
 from PySide.QtGui import *
 from PySide.QtCore import *
 
-from time import sleep
-
-from maya import cmds
+import nuke
 
 def check():
     ok = True
-    if cmds.file(mf=True, q=True):
+    if nuke.modified():
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
         msg.setText("File is not saved continue?")
@@ -19,29 +17,29 @@ def check():
         ok = ret == 1024
     return ok
 
-def clear_scene():
+def clear_script():
     if check():
-        cmds.file(new=True, f=True)
+        nuke.scriptClear()
 
 def open_file(filepath = "", new_window = False):
     if get_open_file() and get_open_file() != filepath:
         if not new_window:
-            clear_scene()
-            cmds.file(filepath, o=True, f=True)
+            clear_script()
+            nuke.scriptOpen(filepath)
         else:
             if check():
-                cmds.file(filepath, o=True, f=True)
+                nuke.scriptOpen(filepath)
     else:
         try:
-            cmds.file(filepath, o=True, f=True)
+            nuke.scriptOpen(filepath)
         except:
             pass
 
 def new_scene(new_window = False):
     if not new_window:
-        clear_scene()
+        clear_script()
     else:
-        clear_scene()
+        nuke.scriptNew()
 
 def get_open_file():
-    return cmds.file(sn=True, q=True)
+    return nuke.Root().knob("name").value()

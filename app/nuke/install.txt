@@ -1,0 +1,4 @@
+Add this line to "C:\Users\<username>\.nuke\init.py"
+
+import nuke
+nuke.pluginAddPath( os.path.join(script_path, 'WelcomeScreen', 'app', 'nuke') )

@@ -10,7 +10,7 @@ from component import QCustomLabel, QRecentLabel
 from config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
 if APP == "NUKE":
-    from command.nuke import nukecommand as cmd
+    from ..app.nuke import command
 
     def get_window():
         for w in QApplication.topLevelWidgets():
@@ -18,7 +18,7 @@ if APP == "NUKE":
                 return w
 
 elif APP == "MAYA":
-    from command.maya import mayacommand as cmd
+    from ..app.maya import command
 
     def get_window():
         for w in QApplication.topLevelWidgets():
@@ -56,6 +56,8 @@ class WelcomeScreen(QDialog):
         self.move(QPoint(screenRes.width() / 2, screenRes.height() / 2) - QPoint((self.width() / 2), (self.height() / 2)))
         
         self.setAttribute(Qt.WA_DeleteOnClose)
+        #self.setAttribute(Qt.WA_TranslucentBackground)
+        #self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.Popup)
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setWindowModality(Qt.ApplicationModal)
 
@@ -86,8 +88,7 @@ class WelcomeScreen(QDialog):
         self.right_layout.addWidget(self.recent_widget)
         self.right_layout.addWidget(self.settings_widget)
         self.right_layout.addWidget(self.about_widget)
-
-
+        
         self.main_layout = QHBoxLayout()
         self.main_layout.addLayout(self.left_layout)
         self.main_layout.addSpacing(20)
@@ -97,19 +98,25 @@ class WelcomeScreen(QDialog):
         self.show_on_startup = QCheckBox("Show Welcome Screen at Startup")
         self.show_on_startup.setStyleSheet("color:rgb(180, 180, 180); font-family:Arial")
         self.close_btn = QPushButton("Close")
-        self.close_btn.setStyleSheet("color:rgb(180, 180, 180); background-color:rgb(39, 92, 132); font-family:Arial")
+        self.close_btn.setStyleSheet("color:rgb(50, 50, 50); background-color:rgb(135, 195, 240); font-family:Arial")
 
         self.footer_layout = QHBoxLayout()
         self.footer_layout.setContentsMargins(0,0,0,0)
         self.footer_layout.addWidget(self.show_on_startup)
         self.footer_layout.addStretch()
         self.footer_layout.addWidget(self.close_btn)
-
+        
+        
+        #self.main_widget = QWidget()
+        #self.main_widget.setStyleSheet("background-color:rgb(50, 50, 50)")
         self.master_layout = QVBoxLayout(self)
         self.master_layout.addSpacing(170)
         self.master_layout.addLayout(self.main_layout)
         self.master_layout.addSpacing(15)
         self.master_layout.addLayout(self.footer_layout)
+        
+        #window_layout = QVBoxLayout(self)
+        #window_layout.addWidget(self.main_widget)
 
         # Signal
         self.connect(self.new_btn, SIGNAL('clicked()'), self.new_cmd)
@@ -228,8 +235,16 @@ class WelcomeScreen(QDialog):
         line = QLine(QPoint(180, 150), QPoint(180, self.height()-50)) # Column divider
         painter.drawLine(line)
 
-        # Bottom Border
+        # Header Border
+        line = QLine(QPoint(1, 150), QPoint(self.width()-1, 150))
+        painter.drawLine(line)
+        
+        # Footer
         line = QLine(QPoint(1, self.height()-50), QPoint(self.width()-1, self.height()-50))
+        painter.drawLine(line)
+        
+        # Top Border
+        line = QLine(QPoint(1, 0), QPoint(self.width()-1, 0))
         painter.drawLine(line)
         
         # Left Border
@@ -249,8 +264,8 @@ class WelcomeScreen(QDialog):
         pen = QPen(QColor(0, 0, 0, 0))
         painter.setPen(pen)
         painter.setBrush(brush)
-        self.rect = QRect(0, 0, self.customWidth, 150)
-        painter.drawRect(self.rect)
+        #self.rect = QRect(0, 0, self.customWidth, 150)
+        #painter.drawRect(self.rect)
 
         # self.nukeIcon = QPixmap("%s/logo.png" % ICON_PATH).scaled(400, 200 , Qt.KeepAspectRatio)
         # painter.drawPixmap(QPoint(0, 0), self.nukeIcon)
@@ -264,11 +279,11 @@ class WelcomeScreen(QDialog):
 
     def new_cmd(self):
         self.post_open()
-        cmd.new_scene(new_window=self.settings["new_window"])
+        command.new_scene(new_window=self.settings["new_window"])
 
     def open_cmd(self, filepath=""):
         self.post_open()
-        cmd.open_file(filepath, new_window=self.settings["new_window"])
+        command.open_file(filepath, new_window=self.settings["new_window"])
 
     def show_recent(self):
         self.recent_widget.show()

@@ -1,13 +1,13 @@
 import os
 import json
 import sys
-
 import re
+from datetime import datetime
 
 APP = re.findall("(\S*?)[\.\d]", os.path.basename(sys.executable))[0].upper()
 
 ICON_PATH = os.path.normpath(os.path.join(__file__, "..", "icons")).replace("\\", "/")
-SETTING_PATH = os.path.normpath(os.path.join(__file__, "..", "users", os.environ.get('USERNAME'))).replace("\\", "/")
+SETTING_PATH = os.path.normpath(os.path.join(__file__, "..", "..", "users", os.environ.get('USERNAME'))).replace("\\", "/")
 PROJECT = os.environ.get("PROJECTNAME", "Project")
 
 def get_settings():
@@ -58,3 +58,17 @@ def save_recent(recent):
         os.makedirs(SETTING_PATH)
     with open(SETTING_PATH + "/recent.json", "w") as recent_file: 
         recent_file.write(json.dumps(recent, indent = 4) ) 
+        
+def add_recent(workfile):
+    if workfile != "":
+        print("Storing", workfile)
+        recent = get_recent()
+        data = next((data for data in recent[PROJECT][APP] if data["path"] == workfile), None)
+        if data:
+            data["access_date"] = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        else:
+            recent[PROJECT][APP].append({
+                "path" : workfile,
+                "access_date" : datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+            })
+        save_recent(recent)
