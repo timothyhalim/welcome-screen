@@ -32,6 +32,7 @@ class WelcomeScreen(QDialog):
 
         self.settings = get_settings()
         self.setup_ui()
+        self.change_resolution()
 
     def show(self):
         super(WelcomeScreen, self).show()
@@ -44,25 +45,15 @@ class WelcomeScreen(QDialog):
 
         self.show_on_startup.setChecked(self.settings['startup_show'])
         self.settings_show_on_startup.setChecked(self.settings['startup_show'])
+        self.settings_fullscreen.setChecked(self.settings['full_screen'])
         self.settings_close_on_open.setChecked(self.settings['close_on_open'])
         self.settings_open_new_window.setChecked(self.settings['new_window'])
 
     def setup_ui(self):
-        screenRes = QDesktopWidget().screenGeometry()
-        
-        self.customWidth = max(screenRes.width()/3, 700)
-        self.customHeight = max(screenRes.height()/3, 600)
-        self.shadow = 10
-        self.setFixedSize(self.customWidth + self.shadow, self.customHeight + self.shadow)
-        self.move(QPoint(screenRes.width() / 2, screenRes.height() / 2) - QPoint((self.width() / 2), (self.height() / 2)))
-        
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        #self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.Popup)
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setWindowModality(Qt.ApplicationModal)
-
-        self.setStyleSheet("background-color:rgb(50, 50, 50), padding:{0}px".format(self.shadow))
 
         # Left Side
         self.new_btn = QCustomLabel(name="New", icon="new")
@@ -107,20 +98,17 @@ class WelcomeScreen(QDialog):
         self.footer_layout.addStretch()
         self.footer_layout.addWidget(self.close_btn)
         
-        
         self.main_widget = QWidget()
-        self.main_widget.setStyleSheet("background-color:rgb(50, 50, 50)")
         self.master_layout = QVBoxLayout(self.main_widget)
-        #self.master_layout.setContentsMargins(self.shadow/2,self.shadow/2,self.shadow/2,self.shadow/2)
-        
         self.master_layout.addSpacing(170)
         self.master_layout.addLayout(self.main_layout)
         self.master_layout.addSpacing(15)
         self.master_layout.addLayout(self.footer_layout)
         
         window_layout = QVBoxLayout(self)
-        window_layout.addWidget(self.main_widget)
-        window_layout.setSpacing(self.shadow)
+        horizontal_layout = QHBoxLayout()
+        window_layout.addLayout(horizontal_layout)
+        horizontal_layout.addWidget(self.main_widget)
 
         # Signal
         self.connect(self.new_btn, SIGNAL('clicked()'), self.new_cmd)
@@ -190,6 +178,7 @@ class WelcomeScreen(QDialog):
         self.settings_label_layout.addStretch()
         
         self.settings_show_on_startup = QCheckBox("Show Welcome Screen at Startup")
+        self.settings_fullscreen = QCheckBox("Full Screen Welcome Screen")
         self.settings_open_new_window = QCheckBox("Open file in New Window")
         self.settings_close_on_open = QCheckBox("Close Welcome Screen after Opening file")
 
@@ -197,10 +186,11 @@ class WelcomeScreen(QDialog):
         self.settings_layout.setSpacing(10)
         self.settings_layout.addLayout(self.settings_label_layout)
         self.settings_layout.addSpacing(7)
-        for w in (self.settings_show_on_startup, self.settings_open_new_window, self.settings_close_on_open):
+        for w in (self.settings_show_on_startup, self.settings_fullscreen, self.settings_open_new_window, self.settings_close_on_open):
             w.setFont(QFont("Arial", 10))
             self.settings_layout.addWidget(w)
             w.clicked.connect(self.update_settings)
+        self.settings_fullscreen.clicked.connect(self.change_resolution)
         self.settings_layout.addStretch()
             
 
@@ -235,20 +225,31 @@ class WelcomeScreen(QDialog):
 
         # Drop Shadow
         brush = QBrush(QColor(0, 0, 0))
-        max_opacity = .1
         painter.setBrush(brush)
         painter.setPen(QPen(Qt.transparent))
-        for i in range(self.shadow):
-            painter.setOpacity(max_opacity-(self.shadow-i)/float(self.shadow)*max_opacity)
-            rect = QRect(i, i, self.width()-(i*2), self.height()-(i*2))
-            painter.drawRoundedRect(rect, self.shadow, self.shadow)
+        if self.settings['full_screen']:
+            max_opacity = .5
+            painter.setOpacity(max_opacity)
+            rect = QRect(0, 0, self.width(), self.height())   
+            painter.drawRect(rect)
+        else:
+            max_opacity = .2
+            painter.setOpacity(max_opacity)
+            for i in range(self.shadow):
+                painter.setOpacity(max_opacity-(self.shadow-i)/float(self.shadow)*max_opacity)
+                rect = QRect(i, i, self.width()-(i*2), self.height()-(i*2))
+                painter.drawRoundedRect(rect, max(self.shadow/3,10), min(self.shadow/3,10))
     
         # Fill Window
+        x1 = (self.width()-self.main_widget.width())/2
+        y1 = (self.height()-self.main_widget.height())/2
+        x2 = self.main_widget.width()+x1
+        y2 = self.main_widget.height()+y1
         
         brush = QBrush(QColor(50, 50, 50))
         painter.setBrush(brush)
         painter.setOpacity(1)
-        rect = QRect(self.shadow, self.shadow, self.width()-(self.shadow*2), self.height()-(self.shadow*2))
+        rect = QRect(x1, y1, x2-x1, y2-y1)
         painter.drawRect(rect)
     
     
@@ -257,32 +258,32 @@ class WelcomeScreen(QDialog):
         pen.setWidth(1)
         painter.setPen(pen)
         
-        # Divider
-        line = QLine(QPoint(self.shadow+180, self.shadow+150), QPoint(self.shadow+180, self.height()-50-self.shadow)) # Column divider
-        painter.drawLine(line)
-
-        # Header Border
-        line = QLine(QPoint(self.shadow, self.shadow+150), QPoint(self.width()-self.shadow, self.shadow+150))
-        painter.drawLine(line)
-        
-        # Footer
-        line = QLine(QPoint(self.shadow, self.height()-50-self.shadow), QPoint(self.width()-self.shadow, self.height()-50-self.shadow))
-        painter.drawLine(line)
-        
         # Top Border
-        line = QLine(QPoint(self.shadow, self.shadow), QPoint(self.width()-self.shadow, self.shadow))
+        line = QLine(QPoint(x1, y1), QPoint(x2, y1))
         painter.drawLine(line)
         
         # Left Border
-        line = QLine(QPoint(self.shadow, self.shadow), QPoint(self.shadow, self.height()-self.shadow))
+        line = QLine(QPoint(x1, y1), QPoint(x1, y2))
         painter.drawLine(line)
 
         # Right Border
-        line = QLine(QPoint(self.width()-self.shadow, self.shadow), QPoint(self.width()-self.shadow, self.height()-self.shadow))
+        line = QLine(QPoint(x2, y1), QPoint(x2, y2))
         painter.drawLine(line)
 
         # Bottom Border
-        line = QLine(QPoint(self.shadow, self.height()-self.shadow), QPoint(self.width()-self.shadow, self.height()-self.shadow))
+        line = QLine(QPoint(x1, y2), QPoint(x2, y2))
+        painter.drawLine(line)
+        
+        # Header Border
+        line = QLine(QPoint(x1, y1+150), QPoint(x2, y1+150))
+        painter.drawLine(line)
+        
+        # Footer
+        line = QLine(QPoint(x1, y2-50), QPoint(x2, y2-50))
+        painter.drawLine(line)
+        
+        # Divider
+        line = QLine(QPoint(x1+180, y1+150), QPoint(x1+180, y2-50)) # Column divider
         painter.drawLine(line)
 
         # Logo
@@ -298,7 +299,7 @@ class WelcomeScreen(QDialog):
 
         painter.setPen(QPen(QColor(255, 255, 255)))
         painter.setFont(QFont("Arial", 40))
-        painter.drawText(QRect(30, 35, self.customWidth-60, 105), Qt.AlignLeft, PROJECT)
+        painter.drawText(QRect(x1+30, y1+35, x2-60, 105), Qt.AlignLeft, PROJECT)
         
     def on_top(self):
         self.raise_()
@@ -330,8 +331,36 @@ class WelcomeScreen(QDialog):
         if self.settings['close_on_open']:
             self.close()
     
+    def change_resolution(self):
+        screenRes = QDesktopWidget().screenGeometry()
+        frame = ( self.parent().frameGeometry().width()-self.parent().width() )/2
+        appWindowPos = self.parent().pos()+QPoint( frame, self.parent().frameGeometry().height()-self.parent().height()-frame )
+        if self.settings['full_screen']:
+            self.setFixedSize(self.parent().width(), self.parent().height())
+            self.shadow = max(self.parent().width(), self.parent().height())/3
+            self.move(appWindowPos)
+        else:
+            self.shadow = 20
+            self.setFixedSize(
+                max(self.parent().width()/3, 700) + self.shadow, 
+                max(self.parent().height()/3, 600) + self.shadow
+            )
+            
+            self.move(appWindowPos + QPoint(
+                    (self.parent().frameGeometry().width()/2) - (self.width() / 2), 
+                    (self.parent().frameGeometry().height()/2) - (self.height() / 2)
+                )
+            )
+        
+        self.main_widget.setFixedSize(
+            max(self.width()-self.shadow, 700), 
+            max(self.height()-self.shadow, 600)
+        )
+        
+    
     def update_settings(self):
         self.settings['startup_show'] = self.settings_show_on_startup.isChecked()
+        self.settings['full_screen'] = self.settings_fullscreen.isChecked()
         self.settings['close_on_open'] = self.settings_close_on_open.isChecked()
         self.settings['new_window'] = self.settings_open_new_window.isChecked()
         self.show_on_startup.setChecked(self.settings['startup_show']) 
