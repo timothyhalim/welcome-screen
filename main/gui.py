@@ -32,7 +32,6 @@ class WelcomeScreen(QDialog):
 
         self.settings = get_settings()
         self.setup_ui()
-        self.change_resolution()
 
     def show(self):
         super(WelcomeScreen, self).show()
@@ -119,6 +118,7 @@ class WelcomeScreen(QDialog):
 
         self.show_on_startup.clicked.connect(self.update_startup_settings)
         self.close_btn.clicked.connect(self.close)
+        self.change_resolution()
 
     def setup_recent_widget(self):
         self.recent_widget = QWidget()
@@ -228,7 +228,7 @@ class WelcomeScreen(QDialog):
         painter.setBrush(brush)
         painter.setPen(QPen(Qt.transparent))
         if self.settings['full_screen']:
-            max_opacity = .5
+            max_opacity = .6
             painter.setOpacity(max_opacity)
             rect = QRect(0, 0, self.width(), self.height())   
             painter.drawRect(rect)
@@ -332,17 +332,24 @@ class WelcomeScreen(QDialog):
             self.close()
     
     def change_resolution(self):
-        screenRes = QDesktopWidget().screenGeometry()
         frame = ( self.parent().frameGeometry().width()-self.parent().width() )/2
         appWindowPos = self.parent().pos()+QPoint( frame, self.parent().frameGeometry().height()-self.parent().height()-frame )
         if self.settings['full_screen']:
-            self.setFixedSize(self.parent().width(), self.parent().height())
             self.shadow = max(self.parent().width(), self.parent().height())/3
+            self.setFixedSize(
+                max(self.parent().width(), 800+self.shadow), 
+                max(self.parent().height(), 600+self.shadow), 
+            )
             self.move(appWindowPos)
+            
+            self.main_widget.setFixedSize(
+                max(min(self.width(), self.height())-self.shadow/2, 800), 
+                max(min(self.width(), self.height())-self.shadow/2, 800)/8*6
+            )
         else:
             self.shadow = 20
             self.setFixedSize(
-                max(self.parent().width()/3, 700) + self.shadow, 
+                max(self.parent().width()/3, 800) + self.shadow, 
                 max(self.parent().height()/3, 600) + self.shadow
             )
             
@@ -352,11 +359,11 @@ class WelcomeScreen(QDialog):
                 )
             )
         
-        self.main_widget.setFixedSize(
-            max(self.width()-self.shadow, 700), 
-            max(self.height()-self.shadow, 600)
-        )
-        
+            self.main_widget.setFixedSize(
+                max(self.width()-self.shadow, 800), 
+                max(self.height()-self.shadow, 600)
+            )
+            
     
     def update_settings(self):
         self.settings['startup_show'] = self.settings_show_on_startup.isChecked()

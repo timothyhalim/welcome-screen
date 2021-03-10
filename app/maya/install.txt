@@ -1,8 +1,8 @@
-Create or edit userSetup.py in C:\Users\<username>\Documents\maya\<maya version>\scripts
-add this line, make sure path are using / instead of \
+Add this line: 
 
 from maya import cmds
-cmds.evalDeferred("execfile('<path-to-WelcomeScreen>/app/maya/register.py')")
+cmds.evalDeferred("execfile('<path-to-WelcomeScreen>/app/maya/register.py')") #make sure path are using / instead of \
 
+to C:\Users\<username>\Documents\maya\<maya version>\scripts\userSetup.py or copy userSetup.py to that folder
 to change keyboard shortcut (by default Ctrl+Shift+W) go to Windows > Settings/Preferences > Hotkey Editor. 
-category Custom Script > Welcome Screen Rtc, click on hot key column and set it there.
+category Custom Script > Welcome Screen, click on hot key column and set it there.
