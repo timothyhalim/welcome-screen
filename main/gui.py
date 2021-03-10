@@ -52,16 +52,17 @@ class WelcomeScreen(QDialog):
         
         self.customWidth = max(screenRes.width()/3, 700)
         self.customHeight = max(screenRes.height()/3, 600)
-        self.setFixedSize(self.customWidth, self.customHeight)
+        self.shadow = 10
+        self.setFixedSize(self.customWidth + self.shadow, self.customHeight + self.shadow)
         self.move(QPoint(screenRes.width() / 2, screenRes.height() / 2) - QPoint((self.width() / 2), (self.height() / 2)))
         
         self.setAttribute(Qt.WA_DeleteOnClose)
-        #self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setAttribute(Qt.WA_TranslucentBackground)
         #self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.Popup)
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setWindowModality(Qt.ApplicationModal)
 
-        self.setStyleSheet("background-color:rgb(50, 50, 50)")
+        self.setStyleSheet("background-color:rgb(50, 50, 50), padding:{0}px".format(self.shadow))
 
         # Left Side
         self.new_btn = QCustomLabel(name="New", icon="new")
@@ -107,16 +108,19 @@ class WelcomeScreen(QDialog):
         self.footer_layout.addWidget(self.close_btn)
         
         
-        #self.main_widget = QWidget()
-        #self.main_widget.setStyleSheet("background-color:rgb(50, 50, 50)")
-        self.master_layout = QVBoxLayout(self)
+        self.main_widget = QWidget()
+        self.main_widget.setStyleSheet("background-color:rgb(50, 50, 50)")
+        self.master_layout = QVBoxLayout(self.main_widget)
+        #self.master_layout.setContentsMargins(self.shadow/2,self.shadow/2,self.shadow/2,self.shadow/2)
+        
         self.master_layout.addSpacing(170)
         self.master_layout.addLayout(self.main_layout)
         self.master_layout.addSpacing(15)
         self.master_layout.addLayout(self.footer_layout)
         
-        #window_layout = QVBoxLayout(self)
-        #window_layout.addWidget(self.main_widget)
+        window_layout = QVBoxLayout(self)
+        window_layout.addWidget(self.main_widget)
+        window_layout.setSpacing(self.shadow)
 
         # Signal
         self.connect(self.new_btn, SIGNAL('clicked()'), self.new_cmd)
@@ -229,34 +233,56 @@ class WelcomeScreen(QDialog):
 
         painter = QPainter(self)
 
+        # Drop Shadow
+        brush = QBrush(QColor(0, 0, 0))
+        max_opacity = .1
+        painter.setBrush(brush)
+        painter.setPen(QPen(Qt.transparent))
+        for i in range(self.shadow):
+            painter.setOpacity(max_opacity-(self.shadow-i)/float(self.shadow)*max_opacity)
+            rect = QRect(i, i, self.width()-(i*2), self.height()-(i*2))
+            painter.drawRoundedRect(rect, self.shadow, self.shadow)
+    
+        # Fill Window
+        
+        brush = QBrush(QColor(50, 50, 50))
+        painter.setBrush(brush)
+        painter.setOpacity(1)
+        rect = QRect(self.shadow, self.shadow, self.width()-(self.shadow*2), self.height()-(self.shadow*2))
+        painter.drawRect(rect)
+    
+    
+        # Border
         pen = QPen(QColor(35, 35, 35, 200))
         pen.setWidth(1)
         painter.setPen(pen)
-        line = QLine(QPoint(180, 150), QPoint(180, self.height()-50)) # Column divider
+        
+        # Divider
+        line = QLine(QPoint(self.shadow+180, self.shadow+150), QPoint(self.shadow+180, self.height()-50-self.shadow)) # Column divider
         painter.drawLine(line)
 
         # Header Border
-        line = QLine(QPoint(1, 150), QPoint(self.width()-1, 150))
+        line = QLine(QPoint(self.shadow, self.shadow+150), QPoint(self.width()-self.shadow, self.shadow+150))
         painter.drawLine(line)
         
         # Footer
-        line = QLine(QPoint(1, self.height()-50), QPoint(self.width()-1, self.height()-50))
+        line = QLine(QPoint(self.shadow, self.height()-50-self.shadow), QPoint(self.width()-self.shadow, self.height()-50-self.shadow))
         painter.drawLine(line)
         
         # Top Border
-        line = QLine(QPoint(1, 0), QPoint(self.width()-1, 0))
+        line = QLine(QPoint(self.shadow, self.shadow), QPoint(self.width()-self.shadow, self.shadow))
         painter.drawLine(line)
         
         # Left Border
-        line = QLine(QPoint(0, 0), QPoint(0, self.height()-1))
+        line = QLine(QPoint(self.shadow, self.shadow), QPoint(self.shadow, self.height()-self.shadow))
         painter.drawLine(line)
 
         # Right Border
-        line = QLine(QPoint(self.width()-1, 1), QPoint(self.width()-1, self.height()-1))
+        line = QLine(QPoint(self.width()-self.shadow, self.shadow), QPoint(self.width()-self.shadow, self.height()-self.shadow))
         painter.drawLine(line)
 
         # Bottom Border
-        line = QLine(QPoint(1, self.height()-1), QPoint(self.width()-1, self.height()-1))
+        line = QLine(QPoint(self.shadow, self.height()-self.shadow), QPoint(self.width()-self.shadow, self.height()-self.shadow))
         painter.drawLine(line)
 
         # Logo
@@ -273,7 +299,7 @@ class WelcomeScreen(QDialog):
         painter.setPen(QPen(QColor(255, 255, 255)))
         painter.setFont(QFont("Arial", 40))
         painter.drawText(QRect(30, 35, self.customWidth-60, 105), Qt.AlignLeft, PROJECT)
-    
+        
     def on_top(self):
         self.raise_()
 
