@@ -1,20 +1,17 @@
-
-from PySide.QtGui import *
-from PySide.QtCore import *
-
 from maya import cmds
 
 def check():
-    ok = True
-    if cmds.file(mf=True, q=True):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText("File is not saved continue?")
-        msg.setWindowTitle("Continue?")
-        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        
-        ret = msg.exec_() 
-        ok = ret == 1024
+    ok = False
+    if cmds.file(q=True, modified=True):
+        confirm = cmds.confirmDialog( 
+            title='Continue', 
+            message='File is not saved continue?', 
+            button=['Yes', 'Cancel'], 
+            defaultButton='Yes', 
+            cancelButton='Cancel', 
+            dismissString='Cancel' 
+        ) 
+        ok = (confirm == 'Yes')
     return ok
 
 def clear_scene():
