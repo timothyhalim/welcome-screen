@@ -6,7 +6,7 @@ except:
     from PySide.QtGui  import *
     from PySide.QtCore import *
 from time import sleep
-from component import QCustomLabel, QRecentLabel
+from component import IconLabel, RecentLabel, FileBrowser
 from config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
 if APP == "NUKE":
@@ -47,11 +47,11 @@ class WelcomeScreen(QDialog):
         self.setWindowModality(Qt.ApplicationModal)
 
         # Left Side
-        self.new_btn = QCustomLabel(name="New", icon="new")
-        self.open_btn = QCustomLabel(name="Open", icon="open")
-        self.recent_btn = QCustomLabel(name="Recent", icon="history")
-        self.setting_btn = QCustomLabel(name="Setting", icon="setting")
-        self.about_btn = QCustomLabel(name="About...", icon="about")
+        self.new_btn = IconLabel(name="New", icon="new")
+        self.open_btn = IconLabel(name="Open", icon="open")
+        self.recent_btn = IconLabel(name="Recent", icon="history")
+        self.setting_btn = IconLabel(name="Setting", icon="setting")
+        self.about_btn = IconLabel(name="About...", icon="about")
 
         self.left_layout = QVBoxLayout()
         self.left_layout.setContentsMargins(0,0,0,0)
@@ -61,16 +61,17 @@ class WelcomeScreen(QDialog):
 
         # Right Side
         self.setup_recent_widget()
+        self.setup_filebrowser_widget()
         self.setup_settings_widget()
         self.setup_about_widget()
 
-        self.settings_widget.hide()
-        self.about_widget.hide()
+        self.show_recent()
 
         self.right_layout = QVBoxLayout()
         self.right_layout.addWidget(self.recent_widget)
         self.right_layout.addWidget(self.settings_widget)
         self.right_layout.addWidget(self.about_widget)
+        self.right_layout.addWidget(self.filebrowser_widget)
         
         self.main_layout = QHBoxLayout()
         self.main_layout.addLayout(self.left_layout)
@@ -103,7 +104,7 @@ class WelcomeScreen(QDialog):
 
         # Signal
         self.connect(self.new_btn, SIGNAL('clicked()'), self.new_cmd)
-        self.connect(self.open_btn, SIGNAL('clicked()'), self.open_cmd)
+        self.connect(self.open_btn, SIGNAL('clicked()'), self.show_browser)
         self.connect(self.recent_btn, SIGNAL('clicked()'), self.show_recent)
         self.connect(self.setting_btn, SIGNAL('clicked()'), self.show_setting)
         self.connect(self.about_btn, SIGNAL('clicked()'), self.show_about)
@@ -131,8 +132,8 @@ class WelcomeScreen(QDialog):
 
         self.recent_list = QRecentWidget()
 
-        self.recent_page_prev = QCustomLabel(icon="previous", iconsize=20)
-        self.recent_page_next = QCustomLabel(icon="next", iconsize=20)
+        self.recent_page_prev = IconLabel(icon="previous", iconsize=20)
+        self.recent_page_next = IconLabel(icon="next", iconsize=20)
         self.recent_page_info = QLabel()
         self.recent_page_info.setText("0/0")
         self.recent_page_info.setFont(QFont("Arial", 10))
@@ -159,6 +160,9 @@ class WelcomeScreen(QDialog):
         self.connect(self.recent_page_prev, SIGNAL('clicked()'), self.prev_page)
         self.connect(self.recent_page_next, SIGNAL('clicked()'), self.next_page)
         
+    def setup_filebrowser_widget(self):
+        self.filebrowser_widget = FileBrowser()
+
     def setup_settings_widget(self):
         self.settings_widget = QWidget()
         self.settings_label = QLabel("Settings:")
@@ -389,20 +393,29 @@ class WelcomeScreen(QDialog):
         self.post_open()
         command.open_file(filepath, new_window=self.settings["new_window"])
 
+    def show_browser(self):
+        self.recent_widget.hide()
+        self.settings_widget.hide()
+        self.about_widget.hide()
+        self.filebrowser_widget.show()
+
     def show_recent(self):
         self.recent_widget.show()
         self.settings_widget.hide()
         self.about_widget.hide()
+        self.filebrowser_widget.hide()
 
     def show_setting(self):
         self.recent_widget.hide()
         self.settings_widget.show()
         self.about_widget.hide()
+        self.filebrowser_widget.hide()
 
     def show_about(self):
         self.recent_widget.hide()
         self.settings_widget.hide()
         self.about_widget.show()
+        self.filebrowser_widget.hide()
 
     def post_open(self):
         if self.settings['close_on_open']:
@@ -451,7 +464,7 @@ class QRecentWidget(QWidget):
     
     def initialize(self):
         self.max_list = int(self.height()/19)
-        self.recent_list = [QRecentLabel() for i in range(self.max_list)]
+        self.recent_list = [RecentLabel() for i in range(self.max_list)]
         for i, w in enumerate(self.recent_list):
             w.update_file({"path":""})
             self.connect(w, SIGNAL('openScript()'), self.clicked)

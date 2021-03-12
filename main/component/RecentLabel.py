@@ -8,9 +8,9 @@ except:
 
 import os
 
-class QRecentLabel(QLabel):
+class RecentLabel(QLabel):
     def __init__(self):
-        super(QRecentLabel, self).__init__()
+        super(RecentLabel, self).__init__()
         self.filePath = ""
 
     def update_file(self, file={"path":""}):

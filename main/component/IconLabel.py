@@ -10,11 +10,11 @@ import os
 
 ICON_PATH = os.path.normpath(os.path.join(__file__, "..", "..", "icons"))
 
-class QCustomLabel(QWidget):
+class IconLabel(QWidget):
     clicked = Signal(object)
 
     def __init__(self, name=None, icon="", iconsize=50):
-        super(QCustomLabel, self).__init__()
+        super(IconLabel, self).__init__()
 
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(0,0,0,0)
