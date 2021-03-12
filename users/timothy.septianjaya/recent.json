@@ -1313,11 +1313,11 @@
         "NUKE": [
             {
                 "path": "X:/BFF/Episodes/EP115/Scenes/SH030.00/BFF_EP115_SH030.00_LGT.nk", 
-                "access_date": "2021/03/08 18:40:30"
+                "access_date": "2021/03/12 18:22:00"
             }, 
             {
                 "path": "X:/BFF/Episodes/EP115/Scenes/SH092.00/BFF_EP115_SH092.00_LGT.nk", 
-                "access_date": "2021/03/11 17:14:15"
+                "access_date": "2021/03/12 19:19:43"
             }, 
             {
                 "path": "X:/BFF/Episodes/EP113/Scenes/SH139.00/BFF_EP113_SH139.00_CMP - Copy.nk", 
@@ -1329,13 +1329,13 @@
             }, 
             {
                 "path": "X:/BFF/Episodes/EP115/Scenes/SH092.00/BFF_EP115_SH092.00_CMP.nk", 
-                "access_date": "2021/03/11 17:14:01"
+                "access_date": "2021/03/12 19:19:26"
             }
         ], 
         "MAYA": [
             {
                 "path": "X:/BFF/Episodes/EP115/Scenes/SH030.00/BFF_EP115_SH030.00_RDR.ma", 
-                "access_date": "2021/03/12 16:28:03"
+                "access_date": "2021/03/12 18:17:44"
             }, 
             {
                 "path": "X:/BFF/Episodes/EP115/Scenes/SH092.00/BFF_EP115_SH092.00_RDR.ma", 
@@ -1356,6 +1356,10 @@
             {
                 "path": "C:/Users/TIMOTH~1.SEP/AppData/Local/Temp/timothy.septianjaya.20210311.1832.ma", 
                 "access_date": "2021/03/11 18:32:30"
+            }, 
+            {
+                "path": "X:/BFF/Episodes/EP113/Scenes/SH004.00/BFF_EP113_SH004.00_RDR.ma", 
+                "access_date": "2021/03/12 17:28:56"
             }
         ], 
         "BLENDER": []

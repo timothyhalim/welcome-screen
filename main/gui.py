@@ -5,12 +5,15 @@ try:
 except:
     from PySide.QtGui  import *
     from PySide.QtCore import *
-from time import sleep
+    
+import os
+
 from component import IconLabel, RecentLabel, FileBrowser
 from config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
 if APP == "NUKE":
     from ..app.nuke import command
+    extfilter = ['*.nk']
 
     def get_window():
         for w in QApplication.topLevelWidgets():
@@ -19,6 +22,7 @@ if APP == "NUKE":
 
 elif APP == "MAYA":
     from ..app.maya import command
+    extfilter = ['*.ma', '*.mb']
 
     def get_window():
         for w in QApplication.topLevelWidgets():
@@ -60,18 +64,15 @@ class WelcomeScreen(QDialog):
         self.left_layout.addStretch()
 
         # Right Side
+        self.right_layout = QVBoxLayout()
+
         self.setup_recent_widget()
-        self.setup_filebrowser_widget()
+        # self.setup_filebrowser_widget()
         self.setup_settings_widget()
         self.setup_about_widget()
 
         self.show_recent()
 
-        self.right_layout = QVBoxLayout()
-        self.right_layout.addWidget(self.recent_widget)
-        self.right_layout.addWidget(self.settings_widget)
-        self.right_layout.addWidget(self.about_widget)
-        self.right_layout.addWidget(self.filebrowser_widget)
         
         self.main_layout = QHBoxLayout()
         self.main_layout.addLayout(self.left_layout)
@@ -160,8 +161,17 @@ class WelcomeScreen(QDialog):
         self.connect(self.recent_page_prev, SIGNAL('clicked()'), self.prev_page)
         self.connect(self.recent_page_next, SIGNAL('clicked()'), self.next_page)
         
+        self.right_layout.addWidget(self.recent_widget)
+        
     def setup_filebrowser_widget(self):
-        self.filebrowser_widget = FileBrowser()
+        self.filebrowser_widget = FileBrowser(filterExtension=extfilter)
+        # self.filebrowser_widget.executed.connect(self.open_cmd)
+        recent_files = get_recent()[PROJECT][APP]
+        recent = [file for file in sorted(recent_files, key=lambda k : k['access_date'], reverse=True )]
+        if recent:
+            self.filebrowser_widget.set_root(os.path.dirname(recent[0]['path']))
+
+        self.right_layout.addWidget(self.filebrowser_widget)
 
     def setup_settings_widget(self):
         self.settings_widget = QWidget()
@@ -188,6 +198,8 @@ class WelcomeScreen(QDialog):
         self.settings_fullscreen.clicked.connect(self.change_resolution)
         self.settings_layout.addStretch() 
 
+        self.right_layout.addWidget(self.settings_widget)
+
     def setup_about_widget(self):
         self.about_widget = QWidget()
         self.about_label_layout = QHBoxLayout()
@@ -210,6 +222,8 @@ class WelcomeScreen(QDialog):
             w.setAlignment(Qt.AlignCenter)
             self.about_layout.addWidget(w)
         self.about_layout.addStretch()
+
+        self.right_layout.addWidget(self.about_widget)
         
     def init_settings(self):
         self.allPages = 1
@@ -381,9 +395,6 @@ class WelcomeScreen(QDialog):
         painter.setPen(QPen(QColor(255, 255, 255)))
         painter.setFont(QFont("Arial", 40))
         painter.drawText(QRect(x1+30, y1+35, x2-60, 105), Qt.AlignLeft, PROJECT)
-            
-    def on_top(self):
-        self.raise_()
 
     def new_cmd(self):
         self.post_open()
@@ -393,29 +404,32 @@ class WelcomeScreen(QDialog):
         self.post_open()
         command.open_file(filepath, new_window=self.settings["new_window"])
 
+    def hide_widgets(self):
+        if hasattr(self, 'recent_widget'):
+            self.recent_widget.hide()
+        if hasattr(self, 'filebrowser_widget'):
+            self.filebrowser_widget.hide()
+        if hasattr(self, 'settings_widget'):
+            self.settings_widget.hide()
+        if hasattr(self, 'about_widget'):
+            self.about_widget.hide()
+
     def show_browser(self):
-        self.recent_widget.hide()
-        self.settings_widget.hide()
-        self.about_widget.hide()
-        self.filebrowser_widget.show()
+        self.hide_widgets()
+        #self.filebrowser_widget.show()
+        self.open_cmd()
 
     def show_recent(self):
+        self.hide_widgets()
         self.recent_widget.show()
-        self.settings_widget.hide()
-        self.about_widget.hide()
-        self.filebrowser_widget.hide()
 
     def show_setting(self):
-        self.recent_widget.hide()
+        self.hide_widgets()
         self.settings_widget.show()
-        self.about_widget.hide()
-        self.filebrowser_widget.hide()
 
     def show_about(self):
-        self.recent_widget.hide()
-        self.settings_widget.hide()
+        self.hide_widgets()
         self.about_widget.show()
-        self.filebrowser_widget.hide()
 
     def post_open(self):
         if self.settings['close_on_open']:
@@ -475,8 +489,8 @@ class QRecentWidget(QWidget):
 
     def update_list(self, searchStr, currentPage):
         self.recent = get_recent()
-        nuke_recent = self.recent[PROJECT][APP]
-        fileList = [file for file in sorted(nuke_recent, key=lambda k : k['access_date'], reverse=True )]
+        recent_files = self.recent[PROJECT][APP]
+        fileList = [file for file in sorted(recent_files, key=lambda k : k['access_date'], reverse=True )]
         if searchStr:
             fileList = [f for f in fileList if searchStr.lower() in f['path'].lower()]
         

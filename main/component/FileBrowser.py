@@ -40,6 +40,9 @@ class FileList(QTableView):
 
     def __init__(self, parent=None, filterExtension=[]):
         super(FileList, self).__init__(parent)
+
+        self.setAttribute(Qt.WA_DeleteOnClose)
+
         self.filterExtension = filterExtension
 
         # Model
@@ -76,48 +79,6 @@ class FileList(QTableView):
         # Init
         self.set_root("")
     
-    def on_root_changed(self, newpath):
-        self.setRootIndex(self.fileModel.index(newpath))
-
-    def on_selection_changed(self, current, prev):
-        self.path = self.fileModel.filePath(current)
-        self.pathChanged.emit(self.path)
-
-    def on_double_click(self, index):
-        if self.path.endswith("..") and self.isdrive(self.path.replace("..", "")):
-            print("is drive", self.path, self.isdrive(self.path))
-            self.set_root("")
-        elif os.path.isdir(self.path) or self.isdrive(self.path):
-            self.set_root(self.path)
-        elif os.path.isfile(self.path):
-            self.executed.emit(self.path)
-        
-    def isdrive(self, path):
-        path.replace("\\", "/")
-        drives = [d.filePath() for d in QDir.drives()]
-        return path in drives
-            
-
-    def filter_path(self, path):
-        if not self.filterExtension: return True
-        for pattern in self.filterExtension:
-            if re.search(pattern, path):
-                return True
-
-    def select_first_row(self):
-        root = self.fileModel.rootPath()
-        qd = QDir(root)
-        qd.setSorting(QDir.Name | QDir.DirsFirst)
-        contents = qd.entryInfoList(QDir.Dirs | QDir.Files | QDir.NoDotAndDotDot | QDir.Drives)
-        if contents:
-            self.select_path(contents[0].filePath())
-
-    def select_path(self, path):
-        index = self.fileModel.index(path)
-        self.selectionModel().setCurrentIndex(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        self.selectionModel().select(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        self.scrollTo(index)
-    
     def root(self):
         return self.fileModel.rootPath()
 
@@ -142,6 +103,47 @@ class FileList(QTableView):
             else:
                 self.select_path(prev)
         self.pathChanged.emit(self.path)
+        
+    def isdrive(self, path):
+        path.replace("\\", "/")
+        drives = [d.filePath() for d in QDir.drives()]
+        return path in drives
+
+    def on_root_changed(self, newpath):
+        self.setRootIndex(self.fileModel.index(newpath))
+
+    def on_selection_changed(self, current, prev):
+        self.path = self.fileModel.filePath(current)
+        self.pathChanged.emit(self.path)
+
+    def on_double_click(self, index):
+        if self.path.endswith("..") and self.isdrive(self.path.replace("..", "")):
+            self.set_root("")
+        elif os.path.isdir(self.path) or self.isdrive(self.path):
+            self.set_root(self.path)
+        elif os.path.isfile(self.path):
+            self.executed.emit(self.path)
+
+    def filter_path(self, path):
+        if not self.filterExtension: return True
+        for pattern in self.filterExtension:
+            if re.search(pattern, path):
+                return True
+
+    def select_first_row(self):
+        root = self.fileModel.rootPath()
+        qd = QDir(root)
+        qd.setNameFilters(self.filterExtension)
+        qd.setSorting(QDir.DirsFirst)
+        contents = qd.entryInfoList(QDir.Dirs | QDir.Files | QDir.NoDotAndDotDot | QDir.Drives)
+        if contents:
+            self.select_path(contents[0].filePath())
+
+    def select_path(self, path):
+        index = self.fileModel.index(path)
+        self.selectionModel().setCurrentIndex(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        # self.selectionModel().select(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        self.scrollTo(index)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Return:
@@ -160,19 +162,19 @@ class FileList(QTableView):
                     parentdir = ""
 
                 self.set_root(parentdir)
+        elif event.key() == Qt.Key_Escape:
+            self.parent().setFocus()
         else:
             super(FileList, self).keyPressEvent(event)
 
 class FileBrowser(QWidget):
     executed = Signal(str)
-    def __init__(self, parent=None, filter=[], exeLabel="Open", title="Open File"):
+    def __init__(self, parent=None, filterExtension=[], exeLabel="Open", title="Open File"):
         QWidget.__init__(self, parent=None)
-        
-        # self.setWindowTitle(title)
-        # self.setMinimumWidth(500)
+        self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.currentPath = QLineEdit()
-        self.fileList = FileList(filterExtension=filter)
+        self.fileList = FileList(filterExtension=filterExtension)
         self.fileLayout = QHBoxLayout()
         self.currentFile = QLineEdit()
         self.exeButton = QPushButton(exeLabel)
@@ -196,7 +198,6 @@ class FileBrowser(QWidget):
         self.on_change_path(self.fileList.path)
 
         self.currentPath.installEventFilter(self)
-        self.fileList.setFocus()
 
     def eventFilter(self, source, event):
         if source is self.currentPath:
@@ -212,6 +213,7 @@ class FileBrowser(QWidget):
         return super(FileBrowser, self).eventFilter(source, event)
 
     def on_change_path(self, newpath):
+        self.currentPath.textChanged.disconnect()
         if os.path.isdir(newpath) or self.fileList.isdrive(newpath):
             path = self.fileList.root() + "/" if self.fileList.root() and not self.fileList.root().endswith("/") else self.fileList.root()
             self.currentPath.setText(path.replace("/", "\\"))
@@ -219,6 +221,7 @@ class FileBrowser(QWidget):
         elif os.path.isfile(newpath):
             self.currentPath.setText((os.path.dirname(newpath)+"/").replace("/", "\\"))
             self.currentFile.setText(os.path.basename(newpath))
+        self.currentPath.textChanged.connect(self.change_path)
 
     def change_path(self):
         if self.currentPath.text():
