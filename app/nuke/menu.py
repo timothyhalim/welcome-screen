@@ -21,7 +21,7 @@ nuke.addOnScriptSave(store_recent)
 
 ### Registering Menu ###
 menu = nuke.menu('Nuke')
-menu.addCommand( 'General/Welcome Screen', wsgui.show, 'ctrl+shift+w' )
+menu.addCommand( 'General/Welcome Screen', wsgui.start, 'ctrl+shift+w' )
 
 ### Start Up Show ###
 ws = wsgui.WelcomeScreen()

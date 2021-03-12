@@ -35,6 +35,7 @@ class WelcomeScreen(QDialog):
         super(WelcomeScreen, self).__init__(parent)
         
         self.settings = get_settings()
+        self.fullscreen = self.settings['full_screen']
         
         self.mainOpacity = 0.0
         self.max_opacity = 0.6
@@ -67,7 +68,7 @@ class WelcomeScreen(QDialog):
         self.right_layout = QVBoxLayout()
 
         self.setup_recent_widget()
-        self.setup_filebrowser_widget()
+        # self.setup_filebrowser_widget()
         self.setup_settings_widget()
         self.setup_about_widget()
 
@@ -111,7 +112,7 @@ class WelcomeScreen(QDialog):
         self.connect(self.about_btn, SIGNAL('clicked()'), self.show_about)
 
         self.show_on_startup.clicked.connect(self.update_startup_settings)
-        self.close_btn.clicked.connect(self.close)
+        self.close_btn.clicked.connect(self.exit)
         self.change_widget_size()
 
     def setup_recent_widget(self):
@@ -239,8 +240,6 @@ class WelcomeScreen(QDialog):
         self.settings_close_on_open.setChecked(self.settings['close_on_open'])
         self.settings_open_new_window.setChecked(self.settings['new_window'])
         
-        self.fullscreen = self.settings['full_screen']
-        
     def setOpacity(self,value): self.mainOpacity = value
     def getOpacity(self): return self.mainOpacity
     opacity = Property(float, getOpacity, setOpacity)
@@ -250,7 +249,7 @@ class WelcomeScreen(QDialog):
             if self.state == "Opening":
                 self.master_widget.show()
             elif self.state == "Closing":
-                super(WelcomeScreen, self).close()
+                self.close()
             elif self.state == "Resizing":
                 self.state = "Resized"
                 self.fullscreen = self.settings['full_screen']
@@ -268,14 +267,14 @@ class WelcomeScreen(QDialog):
         ani.stateChanged.connect(finished_callback)
         return ani
         
-    def show(self):
+    def start(self):
         self.state = "Opening"
-        super(WelcomeScreen, self).show()
-        self.master_widget.hide()
         self.init_settings()
+        self.show()
+        self.master_widget.hide()
         self.opening_animation.start()
         
-    def close(self):
+    def exit(self):
         self.state = "Closing"
         self.master_widget.hide()
         self.closing_animation.start()
@@ -321,8 +320,8 @@ class WelcomeScreen(QDialog):
         self.closing_animation.start()
 
     def paintEvent(self, QPaintEvent):
-        super(WelcomeScreen, self).paintEvent(QPaintEvent)
-        
+        # super(WelcomeScreen, self).paintEvent(QPaintEvent)
+
         # Coordinate
         x1 = (self.width()-self.master_widget.width())/2
         y1 = (self.height()-self.master_widget.height())/2
@@ -343,10 +342,6 @@ class WelcomeScreen(QDialog):
                 painter.setOpacity((self.opacity-(self.shadow-i)/float(self.shadow)*self.opacity)/2)
                 rect = QRect(i, i, self.width()-(i*2), self.height()-(i*2))
                 painter.drawRoundedRect(rect, self.shadow/3, self.shadow/3)
-            
-            # painter.setOpacity(self.opacity) 
-            # rect = QRect(x1, y1, x2-x1, y2-y1)
-            # painter.drawRect(rect)
         
         # Fill Window
         if not self.fullscreen:
@@ -416,7 +411,7 @@ class WelcomeScreen(QDialog):
 
     def show_browser(self):
         self.hide_widgets()
-        self.filebrowser_widget.show()
+        # self.filebrowser_widget.show()
 
     def show_recent(self):
         self.hide_widgets()
@@ -432,7 +427,7 @@ class WelcomeScreen(QDialog):
 
     def post_open(self):
         if self.settings['close_on_open']:
-            self.close()
+            self.exit()
     
     def update_settings(self):
         self.settings['startup_show'] = self.settings_show_on_startup.isChecked()
@@ -505,6 +500,6 @@ class QRecentWidget(QWidget):
     def clicked(self):
         self.file.emit(self.sender().filePath)
 
-def show():
+def start():
     ws = WelcomeScreen()
-    ws.show()
+    ws.start()
