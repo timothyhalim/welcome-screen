@@ -19,7 +19,7 @@ def get_settings():
             'startup_show' : True,
             'close_on_open' : True,
             'new_window' : False,
-            'fullscreen' : False,
+            'full_screen' : False,
         }
         save_settings(settings)
     return settings

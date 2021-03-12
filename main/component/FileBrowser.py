@@ -53,6 +53,7 @@ class FileList(QTableView):
         self.fileModel.setNameFilterDisables(False)
         self.fileModel.setRootPath("")
         self.setModel(self.fileModel)
+        self.tableSelectionModel = self.selectionModel()
 
         # Gui
         self.verticalHeader().setVisible(False)
@@ -73,7 +74,7 @@ class FileList(QTableView):
 
         # Signal
         self.fileModel.rootPathChanged.connect(self.on_root_changed)
-        self.selectionModel().currentChanged.connect(self.on_selection_changed)
+        self.tableSelectionModel.currentChanged.connect(self.on_selection_changed)
         self.doubleClicked.connect(self.on_double_click)
 
         # Init
@@ -141,8 +142,8 @@ class FileList(QTableView):
 
     def select_path(self, path):
         index = self.fileModel.index(path)
-        self.selectionModel().setCurrentIndex(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        # self.selectionModel().select(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        self.tableSelectionModel.setCurrentIndex(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        # self.tableSelectionModel.select(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
         self.scrollTo(index)
 
     def keyPressEvent(self, event):

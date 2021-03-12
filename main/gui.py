@@ -67,7 +67,7 @@ class WelcomeScreen(QDialog):
         self.right_layout = QVBoxLayout()
 
         self.setup_recent_widget()
-        # self.setup_filebrowser_widget()
+        self.setup_filebrowser_widget()
         self.setup_settings_widget()
         self.setup_about_widget()
 
@@ -165,7 +165,7 @@ class WelcomeScreen(QDialog):
         
     def setup_filebrowser_widget(self):
         self.filebrowser_widget = FileBrowser(filterExtension=extfilter)
-        # self.filebrowser_widget.executed.connect(self.open_cmd)
+        self.filebrowser_widget.executed.connect(self.open_cmd)
         recent_files = get_recent()[PROJECT][APP]
         recent = [file for file in sorted(recent_files, key=lambda k : k['access_date'], reverse=True )]
         if recent:
@@ -416,8 +416,7 @@ class WelcomeScreen(QDialog):
 
     def show_browser(self):
         self.hide_widgets()
-        #self.filebrowser_widget.show()
-        self.open_cmd()
+        self.filebrowser_widget.show()
 
     def show_recent(self):
         self.hide_widgets()

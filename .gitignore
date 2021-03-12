@@ -2,7 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
 ### PROJECT ###
-welcome-screen/users/*
+users/*
 
 
 ### Python ###
@@ -10,6 +10,7 @@ welcome-screen/users/*
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # C extensions
 *.so
