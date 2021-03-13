@@ -7,8 +7,11 @@ from datetime import datetime
 APP = re.findall("(\S*?)[\.\d]", os.path.basename(sys.executable))[0].upper()
 
 ICON_PATH = os.path.normpath(os.path.join(__file__, "..", "icons")).replace("\\", "/")
-SETTING_PATH = os.path.normpath(os.path.join(__file__, "..", "..", "users", os.environ.get('USERNAME', 'Anonymus'))).replace("\\", "/")
-SETTING_PATH = os.environ.get('USERPROFILE', SETTING_PATH)
+SETTING_PATH = os.environ.get('USERPROFILE', None)
+if SETTING_PATH is None:
+    SETTING_PATH = os.path.normpath(os.path.join(__file__, "..", "..", "users", os.environ.get('USERNAME', 'Anonymus'))).replace("\\", "/")
+else:
+    SETTING_PATH = os.path.join(SETTING_PATH, "Documents")
 PROJECT = os.environ.get("PROJECTNAME", "Project")
 
 def get_settings():
