@@ -1,0 +1,5 @@
+filesystemwatch fix, after load, select
+auto select file setelah paste filepath di lineedit
+remove double quote dari paste
+enter di filename text open file nya
+filter by username -optional
