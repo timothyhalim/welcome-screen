@@ -41,9 +41,7 @@ def get_recent():
     else:
         recent = {
             PROJECT : {
-                "BLENDER" : [],
-                "MAYA" : [],
-                "NUKE" : []
+                APP : []
             }
         }
         save_recent(recent)
