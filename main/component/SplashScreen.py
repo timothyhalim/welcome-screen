@@ -9,11 +9,12 @@ except:
     qttype = "PySide"
 
 class SplashScreen(QDialog):
-    def __init__(self, parent=None, fullscreen=False, minwidth=800, minheight=600):
+    def __init__(self, parent=None, fullscreen=False, minwidth=800, minheight=600, transparent=True):
         super(SplashScreen, self).__init__(parent)
 
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        if transparent:
+            self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setWindowModality(Qt.ApplicationModal)
 
@@ -62,6 +63,7 @@ class SplashScreen(QDialog):
 
     def animated(self, value):
         if value == QAbstractAnimation.State.Stopped:
+            self.setOpacity(self.max_opacity)
             if self.state == "Opening":
                 self.central_widget.show()
             elif self.state == "Closing":
