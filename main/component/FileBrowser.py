@@ -139,7 +139,8 @@ class FileTable(QTableView):
         return path in drives
 
     def on_root_changed(self, newpath):
-        self.setRootIndex(self.fileModel.index(newpath))
+        self.index = self.fileModel.index(newpath)
+        self.setRootIndex(self.index)
 
     def on_selection_changed(self, current, prev):
         self.path = self.fileModel.filePath(current)
@@ -163,14 +164,14 @@ class FileTable(QTableView):
 
     def select_first_row(self):
         root = self.fileModel.rootPath()
-        parentIndex = self.fileModel.index(root)
-        numRows = self.fileModel.rowCount(parentIndex)
+        self.parentindex = self.fileModel.index(root)
+        numRows = self.fileModel.rowCount(self.index)
         
         if numRows >= 1:
             row = 0
             while row < 3 and row < numRows:
-                childIndex = self.fileModel.index(row, 0, parentIndex)
-                file = self.fileModel.data(childIndex, 0)
+                self.index = self.fileModel.index(row, 0, self.parentindex)
+                file = self.fileModel.data(self.index, 0)
                 if file not in [".", ".."]:
                     break
                 row += 1
@@ -180,10 +181,10 @@ class FileTable(QTableView):
                 self.select_path(filePath)
 
     def select_path(self, path):
-        index = self.fileModel.index(path)
-        self.tableSelectionModel.setCurrentIndex(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        self.tableSelectionModel.select(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        self.scrollTo(index)
+        self.index = self.fileModel.index(path)
+        self.tableSelectionModel.setCurrentIndex(self.index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        self.tableSelectionModel.select(self.index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        self.scrollTo(self.index)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Return:
