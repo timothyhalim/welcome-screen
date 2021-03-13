@@ -93,6 +93,5 @@ except:
     welcomescreeninitialized = True
 
 ### Start Up Show ###
-ws = wsgui.WelcomeScreen()
-if ws.settings['startup_show']:
-    ws.start()
+if wsconfig.get_settings()['startup_show']:
+	wsgui.start()

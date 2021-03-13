@@ -32,7 +32,6 @@ class FileSystemModel(QFileSystemModel):
         else:
             return super(FileSystemModel, self).data(index, role)
 
-
 class FileTable(QTableView):
     pathChanged = Signal(str)
     executed = Signal(str)
@@ -40,8 +39,7 @@ class FileTable(QTableView):
     def __init__(self, parent=None, filterExtension=[]):
         super(FileTable, self).__init__(parent)
 
-        self.setAttribute(Qt.WA_DeleteOnClose)
-
+        self.path = ""
         self.filterExtension = filterExtension
 
         # Model

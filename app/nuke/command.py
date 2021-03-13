@@ -3,7 +3,7 @@ import nuke
 try:
     from Pyside2.QtWidgets import QApplication, QMessageBox
 except:
-    from PySide.QtGui import QApplication
+    from PySide.QtGui import QApplication, QMessageBox
 
 def get_app_window():
     for w in QApplication.topLevelWidgets():

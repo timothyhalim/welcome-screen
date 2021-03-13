@@ -1,4 +1,3 @@
-#execfile(r"C:\Users\timothy.septianjaya\Documents\Timo\Scripts\DCC\WelcomeScreen\main\component\ListPagination.py")
 try:
     from PySide2.QtWidgets import *
     from PySide2.QtGui     import *
@@ -50,6 +49,8 @@ class RecentLabel(QLabel):
         
         
 class RecentList(QScrollArea):
+    fileClicked = Signal(str)
+
     def __init__(self, parent=None):
         QScrollArea.__init__(self, parent=None)
         self.setAttribute(Qt.WA_DeleteOnClose)
@@ -71,9 +72,13 @@ class RecentList(QScrollArea):
         self.mainLayout.addStretch()
         self.setWidget(self.container)
     
+    def send_clicked(self, value):
+        self.fileClicked.emit(value)
+
     def add_item(self, fileInfo):
         btn = RecentLabel(fileInfo)
         self.mainLayout.insertWidget(0, btn)
+        btn.clicked.connect(self.send_clicked)
 
     def add_items(self, fileInfos):
         for info in sorted(fileInfos, key=lambda k : k['access_date']):
@@ -83,8 +88,3 @@ class RecentList(QScrollArea):
         self.container.setParent(None)
         self.container = None
         self.create_container()
-        
-        
-        
-w = RecentList()
-w.show()

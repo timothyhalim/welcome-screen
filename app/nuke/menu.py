@@ -21,9 +21,8 @@ nuke.addOnScriptSave(store_recent)
 
 ### Registering Menu ###
 menu = nuke.menu('Nuke')
-menu.addCommand( 'General/Welcome Screen', wsgui.start, 'ctrl+shift+w' )
+menu.addCommand( 'General/Welcome Screen', lambda f=wsgui.start : nuke.executeInMainThread(f), 'ctrl+shift+w' )
 
 ### Start Up Show ###
-ws = wsgui.WelcomeScreen()
-if ws.settings['startup_show']:
-	ws.show()
+if wsconfig.get_settings()['startup_show']:
+	nuke.executeInMainThread(wsgui.start)

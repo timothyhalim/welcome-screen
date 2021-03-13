@@ -8,7 +8,10 @@ except:
     
 import os
 
-from component import IconLabel, FileBrowser, SplashScreen, RecentList
+from component.IconLabel import IconLabel
+from component.FileBrowser import FileBrowser
+from component.RecentList import RecentList
+from component.SplashScreen import SplashScreen
 from config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
 if APP == "NUKE":
@@ -56,14 +59,14 @@ class WelcomeScreen(SplashScreen):
         self.setup_settings_widget()
         self.setup_about_widget()
 
-        self.show_recent()
-
+        self.switch_to(self.recent_widget)
+        
         # Signal
-        self.connect(self.new_btn, SIGNAL('clicked()'), self.new_cmd)
-        self.connect(self.open_btn, SIGNAL('clicked()'), self.show_browser)
-        self.connect(self.recent_btn, SIGNAL('clicked()'), self.show_recent)
-        self.connect(self.setting_btn, SIGNAL('clicked()'), self.show_setting)
-        self.connect(self.about_btn, SIGNAL('clicked()'), self.show_about)
+        self.connect(self.new_btn    , SIGNAL('clicked()'), self.new_cmd)
+        self.connect(self.open_btn   , SIGNAL("clicked()"), lambda target=self.filebrowser_widget: self.switch_to(target))
+        self.connect(self.recent_btn , SIGNAL("clicked()"), lambda target=self.recent_widget: self.switch_to(target))
+        self.connect(self.setting_btn, SIGNAL("clicked()"), lambda target=self.settings_widget: self.switch_to(target))
+        self.connect(self.about_btn  , SIGNAL("clicked()"), lambda target=self.about_widget: self.switch_to(target))
         
         # Add To Master Layout
         self.menu_layout = QHBoxLayout()
@@ -81,31 +84,24 @@ class WelcomeScreen(SplashScreen):
 
     def setup_recent_widget(self):
         self.recent_widget = QWidget()
-        self.recent_label = QLabel("Recent Files:")
-        self.recent_label.setFont(QFont("Arial", 11))
-        self.recent_label.setStyleSheet("color:rgb(180, 180, 180)")
         self.recent_search = QLineEdit()
         self.recent_search.setStyleSheet("""color:rgb(180, 180, 180); padding:4px 4px 4px 20px; 
                                             background-image:url(%s/search.png); 
                                             background-color:rgb(50, 50, 50); 
                                             background-position: left; 
                                             background-repeat:no-repeat""" % ICON_PATH)
-        self.recent_search.setPlaceholderText("Search")
-        self.recent_layout = QHBoxLayout()
-        self.recent_layout.addWidget(self.recent_label)
-        self.recent_layout.addSpacing(30)
-        self.recent_layout.addWidget(self.recent_search)
+        self.recent_search.setPlaceholderText("Search Recent Files")
 
-        self.recent_list = QScrollArea()
+        self.recent_list = RecentList()
 
         self.recent_widget_layout = QVBoxLayout(self.recent_widget)
         self.recent_widget_layout.setContentsMargins(0,0,0,0)
-        self.recent_widget_layout.addLayout(self.recent_layout)
+        self.recent_widget_layout.addWidget(self.recent_search)
         self.recent_widget_layout.addWidget(self.recent_list)
         
         # Signal
         self.recent_search.textChanged.connect(self.update_recent_file_list)
-        # self.recent_list.file.connect(self.open_cmd)
+        self.recent_list.fileClicked.connect(self.open_cmd)
         
         self.right_layout.addWidget(self.recent_widget)
         
@@ -174,12 +170,14 @@ class WelcomeScreen(SplashScreen):
         self.settings_close_on_open.setChecked(self.settings['close_on_open'])
         self.settings_open_new_window.setChecked(self.settings['new_window'])
 
-        recent_files = get_recent()[PROJECT][APP]
-        recent = [file for file in sorted(recent_files, key=lambda k : k['access_date'], reverse=True )]
-        if recent:
-            self.filebrowser_widget.set_root(os.path.dirname(recent[0]['path']))
+        if hasattr(self, 'filebrowser_widget'):
+            recent_files = get_recent()[PROJECT][APP]
+            if recent_files:
+                latest = max(recent_files, key=lambda k : k['access_date'] )
+                self.filebrowser_widget.set_root(os.path.dirname(latest['path']))
 
-        #self.update_recent_file_list()
+        if hasattr(self, 'recent_widget'):
+            self.update_recent_file_list()
 
     def paintEvent(self, QPaintEvent):
         super(WelcomeScreen, self).paintEvent(QPaintEvent)
@@ -229,21 +227,9 @@ class WelcomeScreen(SplashScreen):
         if hasattr(self, 'about_widget'):
             self.about_widget.hide()
 
-    def show_browser(self):
+    def switch_to(self, target):
         self.hide_widgets()
-        self.filebrowser_widget.show()
-
-    def show_recent(self):
-        self.hide_widgets()
-        self.recent_widget.show()
-
-    def show_setting(self):
-        self.hide_widgets()
-        self.settings_widget.show()
-
-    def show_about(self):
-        self.hide_widgets()
-        self.about_widget.show()
+        target.show()
 
     def post_open(self):
         if self.settings['close_on_open']:
@@ -258,10 +244,10 @@ class WelcomeScreen(SplashScreen):
 
     def update_recent_file_list(self):
         recent_files = get_recent()[PROJECT][APP]
-        # if self.recent_search.text():
-        #     recent_files = [f for f in recent_files if self.recent_search.text().lower() in f['path'].lower()]
-        # self.recent_list.clear()
-        # self.recent_list.add_items(recent_files)
+        if self.recent_search.text():
+            recent_files = [f for f in recent_files if self.recent_search.text().lower() in f['path'].lower()]
+        self.recent_list.clear()
+        self.recent_list.add_items(recent_files)
         self.update()
 
 def start():
