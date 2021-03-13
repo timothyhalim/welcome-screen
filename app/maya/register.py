@@ -45,7 +45,7 @@ except:
 ### Registering HotKey ###
 name = "WelcomeScreen"
 annotation = "Welcome Screen Show"
-command = "from WelcomeScreen.main import gui as wsgui; wsgui.show()"
+command = "from WelcomeScreen.main import gui as wsgui; wsgui.start()"
 
 try:
     if welcomescreeninitialized:

@@ -74,7 +74,7 @@ class SplashScreen(QDialog):
                 self.central_widget.show()
 
     def fade_animation(self, start_opacity, end_opacity, duration, finished_callback):
-        ani = QPropertyAnimation(self,"opacity")
+        ani = QPropertyAnimation(self, b"opacity")
         ani.setStartValue(start_opacity)
         ani.setEndValue(end_opacity)
         ani.setDuration(duration)
@@ -98,7 +98,10 @@ class SplashScreen(QDialog):
         if self.parent():
             windowframe = ( self.parent().frameGeometry().width()-self.parent().width() )/2
             topFrame = self.parent().frameGeometry().height()-self.parent().height()-windowframe
-            appWindowPos = self.parent().pos() + QPoint(windowframe, topFrame)
+            if self.parent().windowState() == Qt.WindowMaximized:
+                appWindowPos = self.parent().pos() + QPoint(0, windowframe+5)
+            else:
+                appWindowPos = self.parent().pos() + QPoint(windowframe, topFrame)
                 
             self.move(appWindowPos + QPoint(
                     (self.parent().frameGeometry().width()/2) - (self.width() / 2), 

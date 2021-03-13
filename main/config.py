@@ -44,12 +44,10 @@ def get_recent():
         }
         save_recent(recent)
     
-    if recent.get(PROJECT, None) is None:
+    if (recent.get(PROJECT, None) is None) or (recent[PROJECT].get(APP, None) is None):
         recent.update({
             PROJECT : {
-                "BLENDER" : [],
-                "MAYA" : [],
-                "NUKE" : []
+                APP : []
             }
         })
     return recent

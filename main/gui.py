@@ -8,11 +8,11 @@ except:
     
 import os
 
-from component.IconLabel import IconLabel
-from component.FileBrowser import FileBrowser
-from component.RecentList import RecentList
-from component.SplashScreen import SplashScreen
-from config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
+from .component.IconLabel import IconLabel
+from .component.FileBrowser import FileBrowser
+from .component.RecentList import RecentList
+from .component.SplashScreen import SplashScreen
+from .config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
 if APP == "NUKE":
     from ..app.nuke import command
@@ -21,6 +21,14 @@ if APP == "NUKE":
 elif APP == "MAYA":
     from ..app.maya import command
     extfilter = ['*.ma', '*.mb']
+
+elif APP == "HOUDINI":
+    from ..app.maya import command
+    extfilter = ['*.ma', '*.mb']
+
+else:
+    extfilter = []
+    from app.other import command
 
 class WelcomeScreen(SplashScreen):
     settings = get_settings()
@@ -59,14 +67,14 @@ class WelcomeScreen(SplashScreen):
         self.setup_settings_widget()
         self.setup_about_widget()
 
-        self.switch_to(self.recent_widget)
+        self.switch_to(self.recent_widget, self.recent_btn)
         
         # Signal
         self.connect(self.new_btn    , SIGNAL('clicked()'), self.new_cmd)
-        self.connect(self.open_btn   , SIGNAL("clicked()"), lambda target=self.filebrowser_widget: self.switch_to(target))
-        self.connect(self.recent_btn , SIGNAL("clicked()"), lambda target=self.recent_widget: self.switch_to(target))
-        self.connect(self.setting_btn, SIGNAL("clicked()"), lambda target=self.settings_widget: self.switch_to(target))
-        self.connect(self.about_btn  , SIGNAL("clicked()"), lambda target=self.about_widget: self.switch_to(target))
+        self.connect(self.open_btn   , SIGNAL("clicked()"), lambda target=self.filebrowser_widget, sender=self.open_btn: self.switch_to(target, sender))
+        self.connect(self.recent_btn , SIGNAL("clicked()"), lambda target=self.recent_widget, sender=self.recent_btn: self.switch_to(target, sender))
+        self.connect(self.setting_btn, SIGNAL("clicked()"), lambda target=self.settings_widget, sender=self.setting_btn: self.switch_to(target, sender))
+        self.connect(self.about_btn  , SIGNAL("clicked()"), lambda target=self.about_widget, sender=self.about_btn: self.switch_to(target, sender))
         
         # Add To Master Layout
         self.menu_layout = QHBoxLayout()
@@ -226,10 +234,15 @@ class WelcomeScreen(SplashScreen):
             self.settings_widget.hide()
         if hasattr(self, 'about_widget'):
             self.about_widget.hide()
+            
+        for button in [self.open_btn, self.recent_btn, self.setting_btn, self.about_btn]:
+            button.boldToggle(False)
 
-    def switch_to(self, target):
+    def switch_to(self, target, sender):
         self.hide_widgets()
         target.show()
+        if sender:
+            sender.boldToggle(True)
 
     def post_open(self):
         if self.settings['close_on_open']:

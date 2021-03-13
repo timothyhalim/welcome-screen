@@ -3,6 +3,7 @@
 
 ### PROJECT ###
 users/*
+.vscode
 
 
 ### Python ###
