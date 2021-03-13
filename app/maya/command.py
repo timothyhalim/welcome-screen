@@ -1,4 +1,13 @@
 from maya import cmds
+try:
+    from PySide2.QtWidgets import QApplication
+except:
+    from PySide.QtGui import QApplication
+
+def get_app_window():
+    for w in QApplication.topLevelWidgets():
+        if w.objectName() == 'MayaWindow':
+            return w
 
 def check():
     ok = False

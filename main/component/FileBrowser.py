@@ -33,12 +33,12 @@ class FileSystemModel(QFileSystemModel):
             return super(FileSystemModel, self).data(index, role)
 
 
-class FileList(QTableView):
+class FileTable(QTableView):
     pathChanged = Signal(str)
     executed = Signal(str)
 
     def __init__(self, parent=None, filterExtension=[]):
-        super(FileList, self).__init__(parent)
+        super(FileTable, self).__init__(parent)
 
         self.setAttribute(Qt.WA_DeleteOnClose)
 
@@ -142,7 +142,7 @@ class FileList(QTableView):
     def select_path(self, path):
         index = self.fileModel.index(path)
         self.tableSelectionModel.setCurrentIndex(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        # self.tableSelectionModel.select(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        self.tableSelectionModel.select(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
         self.scrollTo(index)
 
     def keyPressEvent(self, event):
@@ -165,7 +165,7 @@ class FileList(QTableView):
         elif event.key() == Qt.Key_Escape:
             self.parent().setFocus()
         else:
-            super(FileList, self).keyPressEvent(event)
+            super(FileTable, self).keyPressEvent(event)
 
 class FileBrowser(QWidget):
     executed = Signal(str)
@@ -174,14 +174,17 @@ class FileBrowser(QWidget):
         self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.currentPath = QLineEdit()
-        self.fileList = FileList(filterExtension=filterExtension)
+        self.currentPath.setPlaceholderText("Current Path")
+        self.fileList = FileTable(filterExtension=filterExtension)
         self.fileLayout = QHBoxLayout()
         self.currentFile = QLineEdit()
+        self.currentFile.setPlaceholderText("File")
         self.exeButton = QPushButton(exeLabel)
         self.fileLayout.addWidget(self.currentFile)
         self.fileLayout.addWidget(self.exeButton)
 
         self.mainLayout = QVBoxLayout(self)
+        self.mainLayout.setContentsMargins(0,0,0,0)
         self.mainLayout.addWidget(self.currentPath)
         self.mainLayout.addWidget(self.fileList)
         self.mainLayout.addLayout(self.fileLayout)

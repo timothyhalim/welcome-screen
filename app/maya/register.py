@@ -95,4 +95,4 @@ except:
 ### Start Up Show ###
 ws = wsgui.WelcomeScreen()
 if ws.settings['startup_show']:
-    ws.show()
+    ws.start()

@@ -1,8 +1,14 @@
-
-from PySide.QtGui import *
-from PySide.QtCore import *
-
 import nuke
+
+try:
+    from Pyside2.QtWidgets import QApplication, QMessageBox
+except:
+    from PySide.QtGui import QApplication
+
+def get_app_window():
+    for w in QApplication.topLevelWidgets():
+        if w.metaObject().className() == 'Foundry::UI::DockMainWindow':
+            return w
 
 def check():
     ok = True

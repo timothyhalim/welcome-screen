@@ -8,48 +8,31 @@ except:
     
 import os
 
-from component import IconLabel, RecentLabel, FileBrowser
+from component import IconLabel, FileBrowser, SplashScreen, RecentList
 from config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
 if APP == "NUKE":
     from ..app.nuke import command
     extfilter = ['*.nk']
 
-    def get_window():
-        for w in QApplication.topLevelWidgets():
-            if w.metaObject().className() == 'Foundry::UI::DockMainWindow':
-                return w
-
 elif APP == "MAYA":
     from ..app.maya import command
     extfilter = ['*.ma', '*.mb']
 
-    def get_window():
-        for w in QApplication.topLevelWidgets():
-            if w.objectName() == 'MayaWindow':
-                return w
+class WelcomeScreen(SplashScreen):
+    settings = get_settings()
 
-
-class WelcomeScreen(QDialog):
-    def __init__(self, parent=get_window()):
-        super(WelcomeScreen, self).__init__(parent)
-        
-        self.settings = get_settings()
-        self.fullscreen = self.settings['full_screen']
-        
-        self.mainOpacity = 0.0
-        self.max_opacity = 0.6
-        self.opening_animation = self.fade_animation(0.0, self.max_opacity, 250, self.animated)
-        self.closing_animation = self.fade_animation(self.max_opacity, 0.0, 250, self.animated)
-        
-        self.state = "Opening"
+    def __init__(self, parent=None):
+        super(WelcomeScreen, self).__init__(parent, fullscreen=self.settings['full_screen'])
+        self.setObjectName("WelcomeScreen")
         self.setup_ui()
+        self.init_ui()
 
     def setup_ui(self):
-        self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
-        self.setWindowModality(Qt.ApplicationModal)
+        # Logo
+        self.logo_height = 160
+        self.logo = QLabel()
+        self.logo.setMinimumHeight(self.logo_height)
 
         # Left Side
         self.new_btn = IconLabel(name="New", icon="new")
@@ -66,43 +49,14 @@ class WelcomeScreen(QDialog):
 
         # Right Side
         self.right_layout = QVBoxLayout()
+        self.right_layout.setContentsMargins(0,0,0,0)
 
         self.setup_recent_widget()
-        # self.setup_filebrowser_widget()
+        self.setup_filebrowser_widget()
         self.setup_settings_widget()
         self.setup_about_widget()
 
         self.show_recent()
-
-        
-        self.main_layout = QHBoxLayout()
-        self.main_layout.addLayout(self.left_layout)
-        self.main_layout.addSpacing(20)
-        self.main_layout.addLayout(self.right_layout)
-
-        # Footer
-        self.show_on_startup = QCheckBox("Show Welcome Screen at Startup")
-        self.show_on_startup.setStyleSheet("color:rgb(180, 180, 180); font-family:Arial")
-        self.close_btn = QPushButton("Close")
-        self.close_btn.setStyleSheet("color:rgb(50, 50, 50); background-color:rgb(135, 195, 240); font-family:Arial")
-
-        self.footer_layout = QHBoxLayout()
-        self.footer_layout.setContentsMargins(0,0,0,0)
-        self.footer_layout.addWidget(self.show_on_startup)
-        self.footer_layout.addStretch()
-        self.footer_layout.addWidget(self.close_btn)
-        
-        self.master_widget = QWidget()
-        self.master_layout = QVBoxLayout(self.master_widget)
-        self.master_layout.addSpacing(170)
-        self.master_layout.addLayout(self.main_layout)
-        self.master_layout.addSpacing(15)
-        self.master_layout.addLayout(self.footer_layout)
-        
-        window_layout = QVBoxLayout(self)
-        horizontal_layout = QHBoxLayout()
-        window_layout.addLayout(horizontal_layout)
-        horizontal_layout.addWidget(self.master_widget)
 
         # Signal
         self.connect(self.new_btn, SIGNAL('clicked()'), self.new_cmd)
@@ -110,10 +64,20 @@ class WelcomeScreen(QDialog):
         self.connect(self.recent_btn, SIGNAL('clicked()'), self.show_recent)
         self.connect(self.setting_btn, SIGNAL('clicked()'), self.show_setting)
         self.connect(self.about_btn, SIGNAL('clicked()'), self.show_about)
+        
+        # Add To Master Layout
+        self.menu_layout = QHBoxLayout()
+        self.menu_layout.setContentsMargins(0,0,0,0)
+        self.menu_layout.addLayout(self.left_layout)
+        self.menu_layout.addSpacing(15)
+        self.menu_layout.addLayout(self.right_layout)
+        
+        self.master_layout = QVBoxLayout(self.master_widget)
+        self.master_layout.setContentsMargins(0,0,0,15)
+        self.master_layout.addWidget(self.logo)
+        self.master_layout.addSpacing(10)
+        self.master_layout.addLayout(self.menu_layout)
 
-        self.show_on_startup.clicked.connect(self.update_startup_settings)
-        self.close_btn.clicked.connect(self.exit)
-        self.change_widget_size()
 
     def setup_recent_widget(self):
         self.recent_widget = QWidget()
@@ -132,45 +96,22 @@ class WelcomeScreen(QDialog):
         self.recent_layout.addSpacing(30)
         self.recent_layout.addWidget(self.recent_search)
 
-        self.recent_list = QRecentWidget()
+        self.recent_list = QScrollArea()
 
-        self.recent_page_prev = IconLabel(icon="previous", iconsize=20)
-        self.recent_page_next = IconLabel(icon="next", iconsize=20)
-        self.recent_page_info = QLabel()
-        self.recent_page_info.setText("0/0")
-        self.recent_page_info.setFont(QFont("Arial", 10))
-        self.recent_page_info.setAlignment(Qt.AlignCenter)
-        self.recent_page_info.setStyleSheet("color:rgb(180, 180, 180)")
-
-        self.recent_page_layout = QHBoxLayout()
-        self.recent_page_layout.addWidget(self.recent_page_prev)
-        self.recent_page_layout.addSpacing(10)
-        self.recent_page_layout.addWidget(self.recent_page_info)
-        self.recent_page_layout.addSpacing(10)
-        self.recent_page_layout.addWidget(self.recent_page_next)
-        
         self.recent_widget_layout = QVBoxLayout(self.recent_widget)
-        self.recent_widget_layout.setSpacing(0)
+        self.recent_widget_layout.setContentsMargins(0,0,0,0)
         self.recent_widget_layout.addLayout(self.recent_layout)
-        self.recent_widget_layout.addSpacing(7)
         self.recent_widget_layout.addWidget(self.recent_list)
-        self.recent_widget_layout.addLayout(self.recent_page_layout)
         
         # Signal
-        self.recent_search.textChanged.connect(self.search_recent)
-        self.recent_list.file.connect(self.open_cmd)
-        self.connect(self.recent_page_prev, SIGNAL('clicked()'), self.prev_page)
-        self.connect(self.recent_page_next, SIGNAL('clicked()'), self.next_page)
+        self.recent_search.textChanged.connect(self.update_recent_file_list)
+        # self.recent_list.file.connect(self.open_cmd)
         
         self.right_layout.addWidget(self.recent_widget)
         
     def setup_filebrowser_widget(self):
         self.filebrowser_widget = FileBrowser(filterExtension=extfilter)
         self.filebrowser_widget.executed.connect(self.open_cmd)
-        recent_files = get_recent()[PROJECT][APP]
-        recent = [file for file in sorted(recent_files, key=lambda k : k['access_date'], reverse=True )]
-        if recent:
-            self.filebrowser_widget.set_root(os.path.dirname(recent[0]['path']))
 
         self.right_layout.addWidget(self.filebrowser_widget)
 
@@ -189,6 +130,7 @@ class WelcomeScreen(QDialog):
         self.settings_close_on_open = QCheckBox("Close Welcome Screen after Opening file")
 
         self.settings_layout = QVBoxLayout(self.settings_widget)
+        self.settings_layout.setContentsMargins(0,0,0,0)
         self.settings_layout.setSpacing(10)
         self.settings_layout.addLayout(self.settings_label_layout)
         self.settings_layout.addSpacing(7)
@@ -226,170 +168,48 @@ class WelcomeScreen(QDialog):
 
         self.right_layout.addWidget(self.about_widget)
         
-    def init_settings(self):
-        self.allPages = 1
-        self.curentPage = 1
-        
-        if not self.recent_list.initialized:
-            self.recent_list.initialize()
-        self.update_recent_file_list()
-
-        self.show_on_startup.setChecked(self.settings['startup_show'])
+    def init_ui(self):
         self.settings_show_on_startup.setChecked(self.settings['startup_show'])
         self.settings_fullscreen.setChecked(self.settings['full_screen'])
         self.settings_close_on_open.setChecked(self.settings['close_on_open'])
         self.settings_open_new_window.setChecked(self.settings['new_window'])
-        
-    def setOpacity(self,value): self.mainOpacity = value
-    def getOpacity(self): return self.mainOpacity
-    opacity = Property(float, getOpacity, setOpacity)
-    
-    def animated(self, value):
-        if value == QAbstractAnimation.State.Stopped:
-            if self.state == "Opening":
-                self.master_widget.show()
-            elif self.state == "Closing":
-                self.close()
-            elif self.state == "Resizing":
-                self.state = "Resized"
-                self.fullscreen = self.settings['full_screen']
-                self.change_widget_size()
-                self.opening_animation.start()
-            elif self.state == "Resized":
-                self.master_widget.show()
-                
-    def fade_animation(self, start_opacity, end_opacity, duration, finished_callback):
-        ani = QPropertyAnimation(self,"opacity")
-        ani.setStartValue(start_opacity)
-        ani.setEndValue(end_opacity)
-        ani.setDuration(duration)
-        ani.valueChanged.connect(self.update)
-        ani.stateChanged.connect(finished_callback)
-        return ani
-        
-    def start(self):
-        self.state = "Opening"
-        self.init_settings()
-        self.show()
-        self.master_widget.hide()
-        self.opening_animation.start()
-        
-    def exit(self):
-        self.state = "Closing"
-        self.master_widget.hide()
-        self.closing_animation.start()
-    
-    def change_widget_size(self):
-        frame = ( self.parent().frameGeometry().width()-self.parent().width() )/2
-        appWindowPos = self.parent().pos()+QPoint( frame, self.parent().frameGeometry().height()-self.parent().height()-frame )
-        if self.settings['full_screen']:
-            self.shadow = min(self.parent().width(), self.parent().height())/3 if self.parent().width() > 800 and self.parent().height() > 600 else 0
-            self.setFixedSize(
-                self.parent().width(), 
-                self.parent().height(), 
-            )
-            self.move(appWindowPos)
-            
-            size = (min(self.width(), self.height())-self.shadow/2)
-            self.master_widget.setFixedSize(
-                max(size, 800), 
-                max((size/8*6), 600)
-            )
-        else:
-            self.shadow = 20 if self.parent().width() > 800 and self.parent().height() > 600 else 0
-            self.setFixedSize(
-                min(self.parent().width(), 800 + self.shadow), 
-                min(self.parent().height(), 600 + self.shadow) 
-            )
-            
-            self.move(appWindowPos + QPoint(
-                    (self.parent().frameGeometry().width()/2) - (self.width() / 2), 
-                    (self.parent().frameGeometry().height()/2) - (self.height() / 2)
-                )
-            )
-        
-            self.master_widget.setFixedSize(
-                max(self.width()-self.shadow, 800), 
-                max(self.height()-self.shadow, 600)
-            )
-    
-    def change_resolution(self):
-        self.state = "Resizing"
-        self.master_widget.hide()
-        self.fullscreen = not self.settings['full_screen']
-        self.closing_animation.start()
+
+        recent_files = get_recent()[PROJECT][APP]
+        recent = [file for file in sorted(recent_files, key=lambda k : k['access_date'], reverse=True )]
+        if recent:
+            self.filebrowser_widget.set_root(os.path.dirname(recent[0]['path']))
+
+        #self.update_recent_file_list()
 
     def paintEvent(self, QPaintEvent):
-        # super(WelcomeScreen, self).paintEvent(QPaintEvent)
+        super(WelcomeScreen, self).paintEvent(QPaintEvent)
 
         # Coordinate
-        x1 = (self.width()-self.master_widget.width())/2
-        y1 = (self.height()-self.master_widget.height())/2
-        x2 = self.master_widget.width()+x1
-        y2 = self.master_widget.height()+y1
+        x1 = (self.width()-self.central_widget.width())/2
+        y1 = (self.height()-self.central_widget.height())/2
+        x2 = self.central_widget.width()+x1
+        y2 = self.central_widget.height()+y1
         
-        # Drop Shadow
         painter = QPainter(self)
-        brush = QBrush(QColor(0, 0, 0))
-        painter.setBrush(brush)
-        painter.setPen(QPen(Qt.transparent))
-        if self.fullscreen:
-            painter.setOpacity(self.opacity) 
-            rect = QRect(0, 0, self.width(), self.height())   
-            painter.drawRect(rect)
-        else:
-            for i in range(self.shadow):
-                painter.setOpacity((self.opacity-(self.shadow-i)/float(self.shadow)*self.opacity)/2)
-                rect = QRect(i, i, self.width()-(i*2), self.height()-(i*2))
-                painter.drawRoundedRect(rect, self.shadow/3, self.shadow/3)
-        
-        # Fill Window
+        pen = QPen(QColor(35, 35, 35, 200))
+        pen.setWidth(1)
+        painter.setPen(pen)
+
         if not self.fullscreen:
             if self.opacity/self.max_opacity >= .5:
-                brush = QBrush(QColor(50, 50, 50))
-                painter.setBrush(brush)
-                painter.setOpacity(self.opacity/self.max_opacity)
-                rect = QRect(x1, y1, x2-x1, y2-y1)
-                painter.drawRect(rect)
-            
-                # Border
-                pen = QPen(QColor(35, 35, 35, 200))
-                pen.setWidth(1)
-                painter.setPen(pen)
-                
-                # Top Border
-                line = QLine(QPoint(x1, y1), QPoint(x2, y1))
-                painter.drawLine(line)
-                
-                # Left Border
-                line = QLine(QPoint(x1, y1), QPoint(x1, y2))
-                painter.drawLine(line)
-
-                # Right Border
-                line = QLine(QPoint(x2, y1), QPoint(x2, y2))
-                painter.drawLine(line)
-
-                # Bottom Border
-                line = QLine(QPoint(x1, y2), QPoint(x2, y2))
-                painter.drawLine(line)
-                
                 # Header Border
-                line = QLine(QPoint(x1, y1+150), QPoint(x2, y1+150))
-                painter.drawLine(line)
-                
-                # Footer
-                line = QLine(QPoint(x1, y2-50), QPoint(x2, y2-50))
+                line = QLine(QPoint(x1, y1+self.logo_height+10), QPoint(x2, y1+self.logo_height+10))
                 painter.drawLine(line)
                 
                 # Divider
-                line = QLine(QPoint(x1+180, y1+151), QPoint(x1+180, y2-51)) # Column divider
+                line = QLine(QPoint(x1+180, y1+self.logo_height+11), QPoint(x1+180, y2-self.footer_widget.height()-17)) # Column divider
                 painter.drawLine(line)
 
         # Logo
         painter.setOpacity(self.opacity) 
         painter.setPen(QPen(QColor(255, 255, 255)))
-        painter.setFont(QFont("Arial", 40))
-        painter.drawText(QRect(x1+30, y1+35, x2-60, 105), Qt.AlignLeft, PROJECT)
+        painter.setFont(QFont("Arial", self.logo_height/3))
+        painter.drawText(QRect(x1+35, y1+35, x2-35, self.logo_height-35), Qt.AlignLeft, PROJECT)
 
     def new_cmd(self):
         self.post_open()
@@ -411,7 +231,7 @@ class WelcomeScreen(QDialog):
 
     def show_browser(self):
         self.hide_widgets()
-        # self.filebrowser_widget.show()
+        self.filebrowser_widget.show()
 
     def show_recent(self):
         self.hide_widgets()
@@ -434,72 +254,16 @@ class WelcomeScreen(QDialog):
         self.settings['full_screen'] = self.settings_fullscreen.isChecked()
         self.settings['close_on_open'] = self.settings_close_on_open.isChecked()
         self.settings['new_window'] = self.settings_open_new_window.isChecked()
-        self.show_on_startup.setChecked(self.settings['startup_show']) 
         save_settings(self.settings)
 
-    def update_startup_settings(self):
-        self.settings_show_on_startup.setChecked(self.show_on_startup.isChecked()) 
-        self.update_settings()
-
-    def search_recent(self):
-        self.curentPage = 1
-        self.update_recent_file_list()
-
     def update_recent_file_list(self):
-        self.allPages = self.recent_list.update_list(self.recent_search.text(), self.curentPage)
-        self.recent_page_info.setText("%s/%s" % (self.curentPage, self.allPages))
+        recent_files = get_recent()[PROJECT][APP]
+        # if self.recent_search.text():
+        #     recent_files = [f for f in recent_files if self.recent_search.text().lower() in f['path'].lower()]
+        # self.recent_list.clear()
+        # self.recent_list.add_items(recent_files)
         self.update()
 
-    def prev_page(self):
-        if self.curentPage > 1:
-            self.curentPage -=  1
-        self.update_recent_file_list()
-
-    def next_page(self):
-        if self.curentPage < self.allPages:
-            self.curentPage += 1
-        self.update_recent_file_list()
-
-
-class QRecentWidget(QWidget):
-    file = Signal(object)
-
-    def __init__(self):
-        super(QRecentWidget, self).__init__()
-        self.master_layout = QVBoxLayout(self)
-        self.master_layout.setSpacing(0)
-        self.initialized = False
-    
-    def initialize(self):
-        self.max_list = int(self.height()/19)
-        self.recent_list = [RecentLabel() for i in range(self.max_list)]
-        for i, w in enumerate(self.recent_list):
-            w.update_file({"path":""})
-            self.connect(w, SIGNAL('openScript()'), self.clicked)
-            self.master_layout.addWidget(w)
-            self.master_layout.addSpacing(15)
-        self.master_layout.addStretch()
-        self.initialized = True
-
-    def update_list(self, searchStr, currentPage):
-        self.recent = get_recent()
-        recent_files = self.recent[PROJECT][APP]
-        fileList = [file for file in sorted(recent_files, key=lambda k : k['access_date'], reverse=True )]
-        if searchStr:
-            fileList = [f for f in fileList if searchStr.lower() in f['path'].lower()]
-        
-        recent_file = fileList[self.max_list * (currentPage-1) : self.max_list * currentPage]
-        for i, w in enumerate(self.recent_list):
-            path = recent_file[i] if i < len(recent_file) else {"path":""}
-            w.update_file(path)
-            
-        q, r = divmod(len(fileList)/float(self.max_list), 1)
-        page_count = int(q) + bool(r)
-        return max(page_count, 1)
-
-    def clicked(self):
-        self.file.emit(self.sender().filePath)
-
 def start():
-    ws = WelcomeScreen()
+    ws = WelcomeScreen(parent=command.get_app_window())
     ws.start()
