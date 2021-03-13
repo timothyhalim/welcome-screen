@@ -59,8 +59,6 @@ class RecentList(QScrollArea):
         
         self.viewport().setAutoFillBackground( False )
         self.setFrameStyle( QFrame.NoFrame )
-        # self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setWidgetResizable(True)
         self.create_container()
         

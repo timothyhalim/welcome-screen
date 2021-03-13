@@ -1,5 +1,6 @@
 import os
 import re
+from time import sleep
 
 try:
     from PySide2.QtWidgets import *
@@ -71,6 +72,7 @@ class FileTable(QTableView):
 
         # Signal
         self.fileModel.rootPathChanged.connect(self.on_root_changed)
+        self.fileModel.directoryLoaded.connect(self.on_loaded)
         self.tableSelectionModel.currentChanged.connect(self.on_selection_changed)
         self.doubleClicked.connect(self.on_double_click)
 
@@ -79,6 +81,9 @@ class FileTable(QTableView):
     
     def root(self):
         return self.fileModel.rootPath()
+
+    def on_loaded(self, path):
+        print( "Loaded", self.fileModel.rootPath())
 
     def set_root(self, path):
         prev = self.fileModel.rootPath()
@@ -124,6 +129,7 @@ class FileTable(QTableView):
 
     def filter_path(self, path):
         if not self.filterExtension: return True
+        if os.path.isdir(path): return True
         for pattern in self.filterExtension:
             if re.search(pattern, path):
                 return True
@@ -132,7 +138,7 @@ class FileTable(QTableView):
         root = self.fileModel.rootPath()
         qd = QDir(root)
         qd.setNameFilters(self.filterExtension)
-        qd.setSorting(QDir.DirsFirst)
+        qd.setSorting(QDir.DirsFirst | QDir.Name | QDir.IgnoreCase)
         contents = qd.entryInfoList(QDir.Dirs | QDir.Files | QDir.NoDotAndDotDot | QDir.Drives)
         if contents:
             self.select_path(contents[0].filePath())
