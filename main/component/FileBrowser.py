@@ -90,10 +90,15 @@ class FileTable(QTableView):
         self.fileModel.directoryLoaded.connect(self.on_loaded)
         self.tableSelectionModel.currentChanged.connect(self.on_selection_changed)
         self.doubleClicked.connect(self.on_double_click)
+        self.destroyed.connect(self.clearSelection)
 
         # Init
         self.set_root("")
         self.on_loaded("")
+
+    def close(self):
+        self.clearSelection()
+        super(FileTable, self).close()
     
     def root(self):
         return self.fileModel.rootPath()
