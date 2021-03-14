@@ -2,13 +2,9 @@ try:
     from PySide2.QtWidgets import *
     from PySide2.QtGui     import *
     from PySide2.QtCore    import *
-    import PySide2
-    print("Using PySide2", PySide2.__version__)
 except:
     from PySide.QtGui  import *
     from PySide.QtCore import *
-    import PySide
-    print("Using PySide", PySide.__version__)
     
 import os
 

@@ -5,3 +5,6 @@ import os
 
 script_path = "D:\Scripts" #Path to WelcomeScreen
 nuke.pluginAddPath( os.path.join(script_path, 'WelcomeScreen', 'app', 'nuke') )
+
+optional using pyqt5 for python 2.7
+pip install git+git://github.com/pyqt/python-qt5.git

@@ -12,6 +12,8 @@ except:
     from PySide.QtCore import *
     qttype = "PySide"
 
+print (qttype)
+
 
 def reconnect(signal, newhandler=None, oldhandler=None):        
     try:
