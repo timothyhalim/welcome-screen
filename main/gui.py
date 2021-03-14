@@ -2,9 +2,13 @@ try:
     from PySide2.QtWidgets import *
     from PySide2.QtGui     import *
     from PySide2.QtCore    import *
+    import PySide2
+    print("Using PySide2", PySide2.__version__)
 except:
     from PySide.QtGui  import *
     from PySide.QtCore import *
+    import PySide
+    print("Using PySide", PySide.__version__)
     
 import os
 
@@ -59,8 +63,10 @@ class WelcomeScreen(SplashScreen):
         self.left_layout.addStretch()
 
         # Right Side
+        self.content_widget = QStackedWidget()
         self.right_layout = QVBoxLayout()
         self.right_layout.setContentsMargins(0,0,0,0)
+        self.right_layout.addWidget(self.content_widget)
 
         self.setup_recent_widget()
         self.setup_filebrowser_widget()
@@ -111,13 +117,13 @@ class WelcomeScreen(SplashScreen):
         self.recent_search.textChanged.connect(self.update_recent_file_list)
         self.recent_list.fileClicked.connect(self.open_cmd)
         
-        self.right_layout.addWidget(self.recent_widget)
+        self.content_widget.addWidget(self.recent_widget)
         
     def setup_filebrowser_widget(self):
         self.filebrowser_widget = FileBrowser(filterExtension=extfilter)
         self.filebrowser_widget.executed.connect(self.open_cmd)
 
-        self.right_layout.addWidget(self.filebrowser_widget)
+        self.content_widget.addWidget(self.filebrowser_widget)
 
     def setup_settings_widget(self):
         self.settings_widget = QWidget()
@@ -145,7 +151,7 @@ class WelcomeScreen(SplashScreen):
         self.settings_fullscreen.clicked.connect(self.change_resolution)
         self.settings_layout.addStretch() 
 
-        self.right_layout.addWidget(self.settings_widget)
+        self.content_widget.addWidget(self.settings_widget)
 
     def setup_about_widget(self):
         self.about_widget = QWidget()
@@ -170,7 +176,7 @@ class WelcomeScreen(SplashScreen):
             self.about_layout.addWidget(w)
         self.about_layout.addStretch()
 
-        self.right_layout.addWidget(self.about_widget)
+        self.content_widget.addWidget(self.about_widget)
         
     def init_ui(self):
         self.settings_show_on_startup.setChecked(self.settings['startup_show'])
@@ -225,22 +231,10 @@ class WelcomeScreen(SplashScreen):
         self.post_open()
         command.open_file(filepath, new_window=self.settings["new_window"])
 
-    def hide_widgets(self):
-        if hasattr(self, 'recent_widget'):
-            self.recent_widget.hide()
-        if hasattr(self, 'filebrowser_widget'):
-            self.filebrowser_widget.hide()
-        if hasattr(self, 'settings_widget'):
-            self.settings_widget.hide()
-        if hasattr(self, 'about_widget'):
-            self.about_widget.hide()
-            
+    def switch_to(self, target, sender):
+        self.content_widget.setCurrentWidget(target)
         for button in [self.open_btn, self.recent_btn, self.setting_btn, self.about_btn]:
             button.boldToggle(False)
-
-    def switch_to(self, target, sender):
-        self.hide_widgets()
-        target.show()
         if sender:
             sender.boldToggle(True)
 

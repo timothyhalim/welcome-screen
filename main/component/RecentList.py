@@ -55,7 +55,7 @@ class RecentList(QScrollArea):
 
     def __init__(self, parent=None):
         QScrollArea.__init__(self, parent=None)
-        self.setAttribute(Qt.WA_DeleteOnClose)
+        # self.setAttribute(Qt.WA_DeleteOnClose)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         

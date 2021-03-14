@@ -54,9 +54,9 @@ class IconLabel(QWidget):
             self.bold = state
             currentText = self.label.text()
             if self.bold:
-                self.label.setText("<b>%s</b>" %(currentText))
+                self.label.setText("<b><u>%s</u></b>" %(currentText))
             elif not self.bold:
-                pattern = r"^<b>(.*?)</b>$"
+                pattern = r"^<b><u>(.*?)</u></b>$"
                 result = re.search(pattern, currentText)
                 if result:
                     self.label.setText(result.group(1))

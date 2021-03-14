@@ -4,6 +4,14 @@ import sys
 import re
 from datetime import datetime
 
+# FOR STABILITY USE PySide2 version 2+
+# add PySide2 and Shiboken to path
+# lib = os.path.normpath(os.path.join(__file__, "..", "..", "venv", "Lib", "site-packages"))
+# os.environ["PATH"] += os.pathsep + os.path.join(lib, "PySide2")
+# os.environ["PATH"] += os.pathsep + os.path.join(lib, "shiboken2")
+# if not lib in sys.path:
+#     sys.path.append(lib)
+
 APP = re.findall("(\S*?)[\.\d]", os.path.basename(sys.executable))[0].upper()
 
 ICON_PATH = os.path.normpath(os.path.join(__file__, "..", "icons")).replace("\\", "/")

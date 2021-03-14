@@ -1,16 +1,26 @@
 import sys
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+try:
+    from PySide2.QtWidgets import *
+    from PySide2.QtGui     import *
+    from PySide2.QtCore    import *
+except:
+    from PySide.QtGui  import *
+    from PySide.QtCore import *
 from copy import deepcopy
-from cPickle import dumps, load, loads
-from cStringIO import StringIO
+try:
+    from cPickle import dumps, load, loads
+    from cStringIO import StringIO
+except:
+    from pickle import dumps, load, loads
+    from io import StringIO
+
 
 
 class PyMimeData(QMimeData):
     """ The PyMimeData wraps a Python instance as MIME data.
     """
     # The MIME type for instances.
-    MIME_TYPE = QString('application/x-ets-qt4-instance')
+    MIME_TYPE = str('application/x-ets-qt4-instance')
 
     def __init__(self, data=None):
         """ Initialise the instance.
@@ -86,9 +96,9 @@ possible.
 class myNode(object):
     def __init__(self, name, state, description, parent=None):
        
-        self.name = QString(name)
-        self.state = QString(state)
-        self.description = QString(description)
+        self.name = str(name)
+        self.state = str(state)
+        self.description = str(description)
        
         self.parent = parent
         self.children = []
@@ -164,11 +174,11 @@ class myModel(QAbstractItemModel):
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant(self.headers[section])
-        return QVariant()
+            return self.headers[section]
+        return None
 
     def mimeTypes(self):
-        types = QStringList()
+        types = []
         types.append('application/x-ets-qt4-instance')
         return types
 
@@ -224,26 +234,26 @@ parentIndex, parentIndex)
 
     def data(self, index, role):
         if role == Qt.DecorationRole:
-            return QVariant()
+            return None
                
         if role == Qt.TextAlignmentRole:
-            return QVariant(int(Qt.AlignTop | Qt.AlignLeft))
+            return int(Qt.AlignTop | Qt.AlignLeft)
        
         if role != Qt.DisplayRole:
-            return QVariant()
+            return None
                    
         node = self.nodeFromIndex(index)
        
         if index.column() == 0:
-            return QVariant(node.name)
+            return node.name
        
         elif index.column() == 1:
-            return QVariant(node.state)
+            return node.state
        
         elif index.column() == 2:
-            return QVariant(node.description)
+            return node.description
         else:
-            return QVariant()
+            return None
 
 
     def columnCount(self, parent):
@@ -337,8 +347,7 @@ class Ui_MainWindow(object):
         QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QApplication.translate("MainWindow", 
-"MainWindow", None, QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle("MainWindow")
 
 
 if __name__ == "__main__":

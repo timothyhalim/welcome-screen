@@ -144,8 +144,8 @@ class FileTable(QTableView):
         return path in drives
 
     def on_root_changed(self, newpath):
-        self.index = self.fileModel.index(newpath)
-        self.setRootIndex(self.index)
+        self.current_index = self.fileModel.index(newpath)
+        self.setRootIndex(self.current_index)
 
     def on_selection_changed(self, current, prev):
         self.path = self.fileModel.filePath(current)
@@ -170,13 +170,13 @@ class FileTable(QTableView):
     def select_first_row(self):
         root = self.fileModel.rootPath()
         self.parentindex = self.fileModel.index(root)
-        numRows = self.fileModel.rowCount(self.index)
+        numRows = self.fileModel.rowCount(self.current_index)
         
         if numRows >= 1:
             row = 0
             while row < 3 and row < numRows:
-                self.index = self.fileModel.index(row, 0, self.parentindex)
-                file = self.fileModel.data(self.index, 0)
+                self.current_index = self.fileModel.index(row, 0, self.parentindex)
+                file = self.fileModel.data(self.current_index, 0)
                 if file not in [".", ".."]:
                     break
                 row += 1
@@ -186,10 +186,10 @@ class FileTable(QTableView):
                 self.select_path(filePath)
 
     def select_path(self, path):
-        self.index = self.fileModel.index(path)
-        self.tableSelectionModel.setCurrentIndex(self.index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        self.tableSelectionModel.select(self.index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        self.scrollTo(self.index)
+        self.current_index = self.fileModel.index(path)
+        self.tableSelectionModel.setCurrentIndex(self.current_index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        self.tableSelectionModel.select(self.current_index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        self.scrollTo(self.current_index)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Return:
@@ -209,9 +209,9 @@ class FileTable(QTableView):
 
                 self.set_root(parentdir)
 
-        elif event.key() == Qt.Key_Escape:
-            if self.parent():
-                self.parent().setFocus()
+        # elif event.key() == Qt.Key_Escape:
+        #     if self.parent():
+        #         self.parent().setFocus()
             
         elif event.key() == Qt.Key_Tab:
             if self.parent():
@@ -231,7 +231,7 @@ class FileBrowser(QWidget):
     executed = Signal(str)
     def __init__(self, parent=None, filterExtension=[], exeLabel="Open", title="Open File"):
         QWidget.__init__(self, parent=None)
-        self.setAttribute(Qt.WA_DeleteOnClose)
+        # self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.fileList = FileTable(filterExtension=filterExtension)
 

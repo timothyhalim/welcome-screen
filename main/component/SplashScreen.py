@@ -12,7 +12,7 @@ class SplashScreen(QDialog):
     def __init__(self, parent=None, fullscreen=False, minwidth=800, minheight=600, transparent=True):
         super(SplashScreen, self).__init__(parent)
 
-        self.setAttribute(Qt.WA_DeleteOnClose)
+        # self.setAttribute(Qt.WA_DeleteOnClose)
         if transparent:
             self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
@@ -36,6 +36,7 @@ class SplashScreen(QDialog):
         self.footer_layout = QHBoxLayout(self.footer_widget)
         self.footer_layout.setContentsMargins(0,0,0,0)
         self.close_btn = QPushButton("Close")
+        self.close_btn.setMinimumWidth(60)
         # self.close_btn.setStyleSheet("color:rgb(50, 50, 50); background-color:rgb(135, 195, 240); font-family:Arial")
 
         self.footer_layout.addStretch()
@@ -55,6 +56,7 @@ class SplashScreen(QDialog):
         # Signal
         self.close_btn.clicked.connect(self.exit)
         
+        # Init
         self.change_widget_size(self.fullscreen)
 
     def setOpacity(self,value): self.mainOpacity = value
