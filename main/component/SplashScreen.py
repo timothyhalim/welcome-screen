@@ -119,7 +119,6 @@ class SplashScreen(QDialog):
                 QPoint((self.width() / 2), (self.height() / 2))
             )
         
-
     def change_widget_size(self, fullscreen=False):
         if fullscreen:
             if self.parent():
@@ -225,3 +224,9 @@ class SplashScreen(QDialog):
                 # Footer
                 line = QLine(QPoint(x1, y2-self.footer_widget.height()-17), QPoint(x2, y2-self.footer_widget.height()-17))
                 painter.drawLine(line)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.exit()
+        else:
+            super(SplashScreen, self).keyPressEvent(event)

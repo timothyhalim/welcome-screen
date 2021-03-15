@@ -12,9 +12,6 @@ except:
     from PySide.QtCore import *
     qttype = "PySide"
 
-print (qttype)
-
-
 def reconnect(signal, newhandler=None, oldhandler=None):        
     try:
         if oldhandler is not None:
@@ -47,6 +44,9 @@ class FileSystemModel(QFileSystemModel):
 
         else:
             return super(FileSystemModel, self).data(index, role)
+
+    # def index(self, *args, **kwargs):
+    #     return super(FileSystemModel, self).index(*args, **kwargs)
 
 class FileTable(QTableView):
     pathChanged = Signal(str)
@@ -171,13 +171,13 @@ class FileTable(QTableView):
 
     def select_first_row(self):
         root = self.fileModel.rootPath()
-        self.parentindex = self.fileModel.index(root)
+        self.parent_index = self.fileModel.index(root)
         numRows = self.fileModel.rowCount(self.current_index)
         
         if numRows >= 1:
             row = 0
             while row < 3 and row < numRows:
-                self.current_index = self.fileModel.index(row, 0, self.parentindex)
+                self.current_index = self.fileModel.index(row, 0, self.parent_index)
                 file = self.fileModel.data(self.current_index, 0)
                 if file not in [".", ".."]:
                     break
@@ -290,6 +290,7 @@ class FileBrowser(QWidget):
         self.currentPath.textChanged.connect(self.on_text_changed)
         
     def on_path_changed(self, newpath):
+        newpath = re.sub("(.*?)/(\.)+$", r"\1/", newpath)
         self.change_current_path(newpath)
 
     def on_text_changed(self):

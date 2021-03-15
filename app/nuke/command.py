@@ -1,7 +1,7 @@
 import nuke
 
 try:
-    from Pyside2.QtWidgets import QApplication, QMessageBox
+    from PySide2.QtWidgets import QApplication, QMessageBox
 except:
     from PySide.QtGui import QApplication, QMessageBox
 
