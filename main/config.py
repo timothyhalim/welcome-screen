@@ -65,6 +65,9 @@ def get_recent():
     return recent
 
 def save_recent(recent):
+    new_recent = recent
+    old_recent = get_recent()
+    recent = old_recent.update(new_recent)
     if not os.path.exists(SETTING_PATH):
         os.makedirs(SETTING_PATH)
     with open(SETTING_PATH + "/welcomescreen_recent.json", "w") as recent_file: 
