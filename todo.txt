@@ -1,1 +1,3 @@
+rewrite unstable QFileSystemModel
+searchBar highlight disable disconnect signal
 filter by username -optional
