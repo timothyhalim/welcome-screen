@@ -117,6 +117,21 @@ class FileItemModel(QAbstractItemModel):
         else:
             raise Exception(item, "not instance of", FileInfo)
 
+    def flags(self, index):
+        defaultFlags = QAbstractItemModel.flags(self, index)
+       
+        if index.isValid():
+            return Qt.ItemIsEditable | defaultFlags
+           
+        else:
+            return defaultFlags
+
+    def headerData(self, section, orientation, role):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self.headers[section]
+        return None
+
+
     def itemFromIndex(self, index):
         return index.internalPointer() if index.isValid() else self.root
 
@@ -129,10 +144,10 @@ class FileItemModel(QAbstractItemModel):
         if node is None:
             return QModelIndex()
 
-        # parent = node.parent
+        parent = node.parent
            
-        # if parent is None:
-        #     return QModelIndex()
+        if parent is None:
+            return QModelIndex()
        
         # grandparent = parent.parent
         # if grandparent is None:
@@ -209,8 +224,8 @@ class MyTableView(QTableView):
         self.setColumnWidth(1,80)
         self.setColumnWidth(2,80)
 
-# app = QApplication([])
-# win = MyTableView()
-# win.show()
-# app.exec_()
+app = QApplication([])
+win = MyTableView()
+win.show()
+app.exec_()
 
