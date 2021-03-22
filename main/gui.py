@@ -184,7 +184,7 @@ class WelcomeScreen(SplashScreen):
             recent_files = get_recent()[PROJECT][APP]
             if recent_files:
                 latest = max(recent_files, key=lambda k : k['access_date'] )
-                self.filebrowser_widget.set_root(os.path.dirname(latest['path']))
+                self.filebrowser_widget.setRoot(os.path.dirname(latest['path']))
 
         if hasattr(self, 'recent_widget'):
             self.update_recent_file_list()

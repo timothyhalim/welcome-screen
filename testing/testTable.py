@@ -18,11 +18,7 @@ except:
     qttype = "PySide"
 
 def getDrives():
-    startupinfo = subprocess.STARTUPINFO()
-    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    argument = " ".join(["wmic", "logicaldisk", "get", "/format:csv"])
     drives = []
-    result = subprocess.Popen(argument, stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=startupinfo, universal_newlines=True)
     keys = None
     driveTypes = [
         "Unknown",
@@ -33,6 +29,18 @@ def getDrives():
         "Compact Disc",
         "RAM Disk"
     ]
+    startupinfo = subprocess.STARTUPINFO()
+    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    argument = " ".join(["wmic", "logicaldisk", "get", "/format:csv"])
+    result = subprocess.Popen(
+                argument, 
+                stdout=subprocess.PIPE, 
+                stdin=subprocess.PIPE, 
+                stderr=subprocess.PIPE, 
+                startupinfo=startupinfo, 
+                universal_newlines=True
+            )
+
     for line in result.stdout.readlines():
         if line in ["", "\n"]: continue
         splits = line.split(",")
@@ -49,6 +57,7 @@ def getDrives():
             drive.driveName = drivePath if drivePath else driveName if driveName else driveTypes[int(driveType)]
             drives.append(drive)
     return drives
+
 
 def reconnect(signal, newhandler=None, oldhandler=None):        
     try:
@@ -462,12 +471,13 @@ class FileBrowser(QWidget):
             self.setRoot("")
     
     def onCompleterSwitched(self, state):
-        print(state)
+        # print(state)
         # if not state:
         #     print(self.currentPath.text())
         #     files = self.fileList.getFiles()
         #     self.currentPath.updateCompletionList(files)
         #     print(self.currentPath.text())
+        pass
 
     def setRoot(self, path):
         self.fileList.setRoot(path)
