@@ -12,7 +12,7 @@ class SplashScreen(QDialog):
     def __init__(self, parent=None, fullscreen=False, minwidth=800, minheight=600, transparent=True):
         super(SplashScreen, self).__init__(parent)
 
-        # self.setAttribute(Qt.WA_DeleteOnClose)
+        self.setAttribute(Qt.WA_DeleteOnClose)
         if transparent:
             self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
@@ -228,5 +228,7 @@ class SplashScreen(QDialog):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.exit()
+        elif event.key() == Qt.Key_Return:
+            pass
         else:
             super(SplashScreen, self).keyPressEvent(event)

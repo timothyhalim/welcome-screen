@@ -91,7 +91,6 @@ class WelcomeScreen(SplashScreen):
         self.master_layout.addSpacing(10)
         self.master_layout.addLayout(self.menu_layout)
 
-
     def setup_recent_widget(self):
         self.recent_widget = QWidget()
         self.recent_search = QLineEdit()
@@ -185,6 +184,7 @@ class WelcomeScreen(SplashScreen):
             if recent_files:
                 latest = max(recent_files, key=lambda k : k['access_date'] )
                 self.filebrowser_widget.setRoot(os.path.dirname(latest['path']))
+                self.filebrowser_widget.selectPath(latest['path'])
 
         if hasattr(self, 'recent_widget'):
             self.update_recent_file_list()

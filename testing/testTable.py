@@ -1,5 +1,4 @@
 # TODO 
-# Completer auto fill on type
 
 import sys
 import subprocess
@@ -11,11 +10,9 @@ try:
     from PySide2.QtWidgets import *
     from PySide2.QtGui     import *
     from PySide2.QtCore    import *
-    qttype = "PySide2"
 except:
     from PySide.QtGui  import *
     from PySide.QtCore import *
-    qttype = "PySide"
 
 def getDrives():
     drives = []
@@ -58,7 +55,6 @@ def getDrives():
             drives.append(drive)
     return drives
 
-
 def reconnect(signal, newhandler=None, oldhandler=None):        
     try:
         if oldhandler is not None:
@@ -72,7 +68,8 @@ def reconnect(signal, newhandler=None, oldhandler=None):
         signal.connect(newhandler)
 
 class SearchBar(QLineEdit):
-    switched = Signal(bool)
+    upPressed = Signal()
+    downPressed = Signal()
 
     def __init__(self, parent=None, completerContents=[]):
         super(SearchBar, self).__init__(parent)
@@ -90,12 +87,13 @@ class SearchBar(QLineEdit):
             self.autocomplete_model.appendRow(QStandardItem(text))
         self._completer.setModel(self.autocomplete_model)
 
-    def paintEvent(self, QPaintEvent):
-        super(SearchBar, self).paintEvent(QPaintEvent)
-        prev = self.completerActive
-        self.completerActive = self._completer.popup().isVisible()
-        if prev != self.completerActive:
-            self.switched.emit(self.completerActive)
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Up:
+            self.upPressed.emit()
+        elif event.key() == Qt.Key_Down:
+            self.downPressed.emit()
+        else:
+            super(SearchBar, self).keyPressEvent(event)
 
 class FileModel(QAbstractTableModel):
     rootPathChanged = Signal(str, str)
@@ -111,18 +109,18 @@ class FileModel(QAbstractTableModel):
         self.refresh()
         self.rootPathChanged.emit(root, "")
 
-    def indexFromFilePath(self, path):
+    def rowFromFilePath(self, path):
         path = path + "/" if path.endswith(":") else path
         path = os.path.abspath(path).replace("\\", "/")
         # Search for case sensitive first
         for row in range(self.rowCount()):
             if self._data[row].absoluteFilePath() == path:
-                return self.index(row, 0, QModelIndex())
+                return row
         # Search for case insensitive
         for row in range(self.rowCount()):
             if self._data[row].absoluteFilePath().lower() == path.lower():
-                return self.index(row, 0, QModelIndex())
-        return self.index(0, 0, QModelIndex())
+                return row
+        return 0
 
     def filePathFromIndex(self, index):
         row = index.row()
@@ -314,7 +312,6 @@ class FileList(QTableView):
                 prevselection = [f for f in oldPath.replace(newPath, "").split("/") if f]
                 if prevselection:
                     filepath = os.path.join(newPath, prevselection[0])
-            
         self.selectPath(filepath)
         self.rootChanged.emit(newPath)
 
@@ -334,10 +331,27 @@ class FileList(QTableView):
             self.executed.emit(self.path)
 
     def selectPath(self, path):
-        self.matchIndex = self.fileModel.indexFromFilePath(path)
-        self.tableSelectionModel.setCurrentIndex(self.matchIndex, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        self.tableSelectionModel.select(self.matchIndex, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        self.scrollTo(self.matchIndex)
+        self.selectRow(self.fileModel.rowFromFilePath(path))
+
+    def selectIndex(self, index):
+        self.setToIndex = index
+        self.tableSelectionModel.setCurrentIndex(self.setToIndex, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        self.tableSelectionModel.select(self.setToIndex, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        self.scrollTo(self.setToIndex)
+
+    def selectRow(self, row):
+        row = max(row, 0)
+        row = min(row, self.fileModel.rowCount()-1)
+        index = self.fileModel.index(row, 0, QModelIndex())
+        self.selectIndex(index)
+
+    def selectPrev(self):
+        currentRow = self.currentIndex().row()
+        self.selectRow(currentRow-1)
+
+    def selectNext(self):
+        currentRow = self.currentIndex().row()
+        self.selectRow(currentRow+1)
 
     def getFiles(self):
         return self.fileModel.getFiles()
@@ -396,9 +410,10 @@ class FileBrowser(QWidget):
         for l in [self.currentPath]:
             l.setFixedHeight(26)
 
-        self.currentPath.switched.connect(self.onCompleterSwitched)
         self.currentPath.textChanged.connect(self.onTextChanged)
-        self.currentPath.returnPressed.connect(self.validatePath)
+        self.currentPath.returnPressed.connect(self.execute)
+        self.currentPath.upPressed.connect(self.selectPrev)
+        self.currentPath.downPressed.connect(self.selectNext)
         self.fileList.rootChanged.connect(self.onRootChanged)
         self.fileList.pathSelected.connect(self.onPathChanged)
         self.fileList.executed.connect(self.execute)
@@ -412,7 +427,6 @@ class FileBrowser(QWidget):
         self.exeButton.installEventFilter(self)
         
         self.lastFocus = None
-        self.onCompleterSwitched(False)
 
     def eventFilter(self, source, event):
         if event.type() == QEvent.FocusOut:
@@ -433,51 +447,61 @@ class FileBrowser(QWidget):
     
     def validatePath(self):
         self.changeCurrentPath(self.fileList.path)
-        if os.path.isfile(self.fileList.path):
-            self.execute()
-        else:
-            self.fileList.setFocus()
 
     def onRootChanged(self):
         root = self.fileList.getRoot()
         currentText = self.currentPath.text()
         self.changeCurrentPath(root+currentText[len(root):])
 
-    def changeCurrentPath(self, text):
+    def cleanupPath(self, path):
+        search = re.search("^\"(.*?)\"$", path)
+        if search:
+            path = search.group(1)
+        
+        search = re.search("(.*?)\.\.$", path)
+        if search:
+            path = search.group(1)
+
+        return path
+
+    def changeCurrentPath(self, path):
         reconnect(self.currentPath.textChanged)
-        self.currentPath.setText(text)
+        path = self.cleanupPath(path)
+        self.currentPath.setText(path)
         reconnect(self.currentPath.textChanged, self.onTextChanged)
         
-    def onPathChanged(self, newpath):
-        newpath = re.sub("(.*?)/(\.)+$", r"\1", newpath)
-        self.changeCurrentPath(newpath)
+    def onPathChanged(self, path):
+        path = self.cleanupPath(path)
+        self.changeCurrentPath(path)
 
     def onTextChanged(self):
         if self.currentPath.text():
-            search = re.search("^\"(.*?)\"$", self.currentPath.text())
-            if search:
-                self.currentPath.setText(search.group(1))
-                return
-
             cp = self.currentPath.text()
+            if re.search("^\"(.*?)\"$", cp) or re.search("(.*?)\.\.$", cp):
+                self.currentPath.setText(self.cleanupPath(cp))
+
             splits = cp.split("/")
             path = "/".join(splits[:-1]) if len(splits) > 1 else cp + "/"
             self.setRoot(path)
 
             files = [f.lower() for f in self.fileList.getFiles()]
-            if cp.lower() in files:
-                self.fileList.selectPath(cp)
+            for file in files:
+                if cp.lower() in file:
+                    self.selectPath(file)
+                    break
         else:
             self.setRoot("")
     
-    def onCompleterSwitched(self, state):
-        # print(state)
-        # if not state:
-        #     print(self.currentPath.text())
-        #     files = self.fileList.getFiles()
-        #     self.currentPath.updateCompletionList(files)
-        #     print(self.currentPath.text())
-        pass
+    def selectPrev(self):
+        self.fileList.selectPrev()
+        self.changeCurrentPath(self.fileList.path)
+
+    def selectNext(self):
+        self.fileList.selectNext()
+        self.changeCurrentPath(self.fileList.path)
+
+    def selectPath(self, path):
+        self.fileList.selectPath(path)
 
     def setRoot(self, path):
         self.fileList.setRoot(path)
@@ -487,13 +511,14 @@ class FileBrowser(QWidget):
             self.executed.emit(self.fileList.path)
         else:
             self.setRoot(self.fileList.path)
+        self.changeCurrentPath(self.fileList.path)
+
 try:
     if __name__ == "__main__":
         app=QApplication(sys.argv)
         window=FileBrowser()
         window.show()
         app.exec_()
-
 except:
     window=FileBrowser()
     window.show()
