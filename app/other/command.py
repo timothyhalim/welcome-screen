@@ -6,7 +6,6 @@ except:
 def get_app_window():
     app = QApplication.instance()
     for w in app.topLevelWidgets():
-        print(w)
         return w
 
 def check():

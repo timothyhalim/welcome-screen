@@ -334,15 +334,14 @@ class FileList(QTableView):
         self.selectRow(self.fileModel.rowFromFilePath(path))
 
     def selectIndex(self, index):
-        self.setToIndex = index
-        self.tableSelectionModel.setCurrentIndex(self.setToIndex, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        self.tableSelectionModel.select(self.setToIndex, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
-        self.scrollTo(self.setToIndex)
+        self.tableSelectionModel.setCurrentIndex(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        self.tableSelectionModel.select(index, QItemSelectionModel.Rows | QItemSelectionModel.ClearAndSelect)
+        self.scrollTo(index)
 
     def selectRow(self, row):
         row = max(row, 0)
         row = min(row, self.fileModel.rowCount()-1)
-        index = self.fileModel.index(row, 0, QModelIndex())
+        index = self.fileModel.index(row, 0)
         self.selectIndex(index)
 
     def selectPrev(self):
@@ -372,7 +371,9 @@ class FileList(QTableView):
                 self.setRoot(parentdir)
 
         elif event.key() == Qt.Key_F5:
+            index = self.currentIndex()
             self.fileModel.refresh()
+            self.selectIndex(index)
 
         elif event.key() == Qt.Key_Tab:
             if self.parent():

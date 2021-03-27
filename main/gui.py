@@ -23,7 +23,7 @@ elif APP == "MAYA":
     extfilter = ['*.ma', '*.mb']
 
 elif APP == "HOUDINI":
-    from ..app.maya import command
+    from ..app.houdini import command
     extfilter = ['*.ma', '*.mb']
 
 else:
@@ -64,13 +64,11 @@ class WelcomeScreen(SplashScreen):
         self.right_layout.setContentsMargins(0,0,0,0)
         self.right_layout.addWidget(self.content_widget)
 
-        self.setup_recent_widget()
         self.setup_filebrowser_widget()
+        self.setup_recent_widget()
         self.setup_settings_widget()
         self.setup_about_widget()
 
-        self.switch_to(self.recent_widget, self.recent_btn)
-        
         # Signal
         self.connect(self.new_btn    , SIGNAL('clicked()'), self.new_cmd)
         self.connect(self.open_btn   , SIGNAL("clicked()"), lambda target=self.filebrowser_widget, sender=self.open_btn: self.switch_to(target, sender))
@@ -91,10 +89,17 @@ class WelcomeScreen(SplashScreen):
         self.master_layout.addSpacing(10)
         self.master_layout.addLayout(self.menu_layout)
 
+    def setup_filebrowser_widget(self):
+        self.filebrowser_widget = FileBrowser(filterExtension=extfilter)
+        self.filebrowser_widget.executed.connect(self.open_cmd)
+
+        self.content_widget.addWidget(self.filebrowser_widget)
+
     def setup_recent_widget(self):
         self.recent_widget = QWidget()
         self.recent_search = QLineEdit()
-        self.recent_search.setStyleSheet("""color:rgb(180, 180, 180); padding:4px 4px 4px 20px; 
+        self.recent_search.setStyleSheet("""color:rgb(180, 180, 180); 
+                                            padding:4px 4px 4px 20px; 
                                             background-image:url(%s/search.png); 
                                             background-color:rgb(50, 50, 50); 
                                             background-position: left; 
@@ -114,12 +119,6 @@ class WelcomeScreen(SplashScreen):
         
         self.content_widget.addWidget(self.recent_widget)
         
-    def setup_filebrowser_widget(self):
-        self.filebrowser_widget = FileBrowser(filterExtension=extfilter)
-        self.filebrowser_widget.executed.connect(self.open_cmd)
-
-        self.content_widget.addWidget(self.filebrowser_widget)
-
     def setup_settings_widget(self):
         self.settings_widget = QWidget()
         self.settings_label = QLabel("Settings:")
@@ -174,10 +173,11 @@ class WelcomeScreen(SplashScreen):
         self.content_widget.addWidget(self.about_widget)
         
     def init_ui(self):
-        self.settings_show_on_startup.setChecked(self.settings['startup_show'])
-        self.settings_fullscreen.setChecked(self.settings['full_screen'])
-        self.settings_close_on_open.setChecked(self.settings['close_on_open'])
-        self.settings_open_new_window.setChecked(self.settings['new_window'])
+        if hasattr(self, 'settings_widget'):
+            self.settings_show_on_startup.setChecked(self.settings['startup_show'])
+            self.settings_fullscreen.setChecked(self.settings['full_screen'])
+            self.settings_close_on_open.setChecked(self.settings['close_on_open'])
+            self.settings_open_new_window.setChecked(self.settings['new_window'])
 
         if hasattr(self, 'filebrowser_widget'):
             recent_files = get_recent()[PROJECT][APP]
@@ -187,6 +187,7 @@ class WelcomeScreen(SplashScreen):
                 self.filebrowser_widget.selectPath(latest['path'])
 
         if hasattr(self, 'recent_widget'):
+            self.switch_to(self.recent_widget, self.recent_btn)
             self.update_recent_file_list()
 
     def paintEvent(self, QPaintEvent):
