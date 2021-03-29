@@ -9,7 +9,7 @@ except:
 import os
 
 try:
-    from .component.IconLabel import IconLabel
+    from .component.ButtonIcon import ButtonIcon
     from .component.FileBrowser import FileBrowser
     from .component.RecentList import RecentList
     from .component.SplashScreen import SplashScreen
@@ -33,11 +33,12 @@ try:
         from app.other import command
 
 except:
-    from WelcomeScreen.main.component.IconLabel import IconLabel
+    # Workaround for pyside 1.xx
+    from WelcomeScreen.main.component.ButtonIcon import ButtonIcon
     from WelcomeScreen.main.component.FileBrowser import FileBrowser
     from WelcomeScreen.main.component.RecentList import RecentList
     from WelcomeScreen.main.component.SplashScreen import SplashScreen
-    from WelcomeScreen.main.component.Qss import styleSheet
+    from WelcomeScreen.main.component.QStyleSheet import styleSheet
     from WelcomeScreen.main.config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
     if APP == "NUKE":
@@ -73,11 +74,11 @@ class WelcomeScreen(SplashScreen):
         self.logo.setMinimumHeight(self.logo_height)
 
         # Left Side
-        self.new_btn = IconLabel(name="New", icon="new")
-        self.open_btn = IconLabel(name="Open", icon="open")
-        self.recent_btn = IconLabel(name="Recent", icon="history")
-        self.setting_btn = IconLabel(name="Setting", icon="setting")
-        self.about_btn = IconLabel(name="About...", icon="about")
+        self.new_btn = ButtonIcon(name="New", icon="new")
+        self.open_btn = ButtonIcon(name="Open", icon="open")
+        self.recent_btn = ButtonIcon(name="Recent", icon="history")
+        self.setting_btn = ButtonIcon(name="Setting", icon="setting")
+        self.about_btn = ButtonIcon(name="About...", icon="about")
 
         self.left_layout = QVBoxLayout()
         self.left_layout.setContentsMargins(0,0,0,0)
@@ -219,8 +220,10 @@ class WelcomeScreen(SplashScreen):
                 line = QLine(QPoint(x1, y1+self.logo_height+10), QPoint(x2, y1+self.logo_height+10))
                 painter.drawLine(line)
                 
+                distance = (self.content_widget.geometry().left() - self.new_btn.geometry().right()) + self.new_btn.geometry().right()
+
                 # Divider
-                line = QLine(QPoint(x1+180, y1+self.logo_height+11), QPoint(x1+180, y2-self.footer_widget.height()-17)) # Column divider
+                line = QLine(QPoint(x1+distance, y1+self.logo_height+11), QPoint(x1+distance, y2-self.footer_widget.height()-17)) # Column divider
                 painter.drawLine(line)
 
         # Logo

@@ -12,6 +12,7 @@ QWidget:disabled {
 QLineEdit {
 	border-style: solid;
 	border: 1px solid #232323;
+	border-radius:4px;
 }
 
 QLineEdit:hover, QLineEdit:focus {
@@ -57,6 +58,7 @@ QScrollBar:vertical {
 QScrollBar::handle:vertical {
 	background: #232323;
 	min-height: 20px;
+	border-radius:4px;
 }
 
 QScrollBar::handle:vertical:hover {
@@ -74,6 +76,7 @@ QScrollBar:horizontal {
 QScrollBar::handle:horizontal {
 	background: #232323;
 	min-width: 20px;
+	border-radius:4px;
 }
 QScrollBar::handle:horizontal:hover {
 	background: #FFC132;
@@ -85,9 +88,8 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal, QScrollBar::ad
 
 QPushButton {
 	background-color: #555;
-	border-color: #555;
-	border-width: 2;
-	border-style: solid;
+	border: 2px solid #555;
+	border-radius:4px;
 	padding: 5px;
 	padding-left: 5px;
 	padding-right: 5px;

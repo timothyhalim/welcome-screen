@@ -1,6 +1,5 @@
 # TODO 
 
-import sys
 import subprocess
 import os
 import re
@@ -141,7 +140,10 @@ class FileModel(QAbstractTableModel):
         if path == "" or os.path.isdir(path):
             prevRoot = self.rootPath()
             if path:
-                path = os.path.abspath(path).replace("\\", "/")
+                if re.search("[a-zA-Z]:/\.\.$", path):
+                    path = ""
+                else:
+                    path = os.path.abspath(path).replace("\\", "/")
                 path = self.fixCase(path)
             if path != self.rootPath():
                 self._data = []
