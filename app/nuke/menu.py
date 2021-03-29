@@ -8,21 +8,39 @@ nuke.tprint("Welcome Screen:", main_folder)
 if not main_folder in sys.path:
     sys.path.append(main_folder)
 
-### Import Required Modules ###
-from WelcomeScreen.main import gui as wsgui
+### Registering Callback ###
 from WelcomeScreen.main import config as wsconfig
 
-### Registering Callback ###
 def store_recent():
     wsconfig.add_recent(nuke.Root().knob("name").value())
     
 nuke.addOnScriptLoad(store_recent)
 nuke.addOnScriptSave(store_recent)
 
-### Registering Menu ###
-menu = nuke.menu('Nuke')
-menu.addCommand( 'General/Welcome Screen', lambda f=wsgui.start : nuke.executeInMainThread(f), 'ctrl+shift+w' )
+if nuke.env['NukeVersionMajor'] < 10:
+    execfile(os.path.join(main_folder, "WelcomeScreen", "main", "gui.py"))
+    
+    ### Import Required Modules ###
+    def wsgui_start():
+        ws = WelcomeScreen()
+        ws.start()
 
-### Start Up Show ###
-if wsconfig.get_settings()['startup_show']:
-	nuke.executeInMainThread(wsgui.start)
+    ### Registering Menu ###
+    menu = nuke.menu('Nuke')
+    menu.addCommand( 'General/Welcome Screen', lambda f=wsgui_start : nuke.executeInMainThread(f), 'ctrl+shift+w' )
+
+    ### Start Up Show ###
+    if wsconfig.get_settings()['startup_show']:
+        nuke.executeInMainThread(wsgui_start)
+
+else:
+    ### Import Required Modules ###
+    from WelcomeScreen.main import gui as wsgui
+
+    ### Registering Menu ###
+    menu = nuke.menu('Nuke')
+    menu.addCommand( 'General/Welcome Screen', lambda f=wsgui.start : nuke.executeInMainThread(f), 'ctrl+shift+w' )
+
+    ### Start Up Show ###
+    if wsconfig.get_settings()['startup_show']:
+        nuke.executeInMainThread(wsgui.start)

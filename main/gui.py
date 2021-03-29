@@ -8,27 +8,52 @@ except:
     
 import os
 
-from .component.IconLabel import IconLabel
-from .component.FileBrowser import FileBrowser
-from .component.RecentList import RecentList
-from .component.SplashScreen import SplashScreen
-from .config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
+try:
+    from .component.IconLabel import IconLabel
+    from .component.FileBrowser import FileBrowser
+    from .component.RecentList import RecentList
+    from .component.SplashScreen import SplashScreen
+    from .config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
-if APP == "NUKE":
-    from ..app.nuke import command
-    extfilter = ['*.nk']
+    if APP == "NUKE":
+        from ..app.nuke import command
+        extfilter = ['*.nk']
 
-elif APP == "MAYA":
-    from ..app.maya import command
-    extfilter = ['*.ma', '*.mb']
+    elif APP == "MAYA":
+        from ..app.maya import command
+        extfilter = ['*.ma', '*.mb']
 
-elif APP == "HOUDINI":
-    from ..app.houdini import command
-    extfilter = ['*.ma', '*.mb']
+    elif APP == "HOUDINI":
+        from ..app.houdini import command
+        extfilter = ['*.ma', '*.mb']
 
-else:
-    extfilter = []
-    from app.other import command
+    else:
+        extfilter = []
+        from app.other import command
+
+except:
+    from WelcomeScreen.main.component.IconLabel import IconLabel
+    from WelcomeScreen.main.component.FileBrowser import FileBrowser
+    from WelcomeScreen.main.component.RecentList import RecentList
+    from WelcomeScreen.main.component.SplashScreen import SplashScreen
+    from WelcomeScreen.main.config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
+
+    if APP == "NUKE":
+        from WelcomeScreen.app.nuke import command
+        extfilter = ['*.nk']
+
+    elif APP == "MAYA":
+        from WelcomeScreen.app.maya import command
+        extfilter = ['*.ma', '*.mb']
+
+    elif APP == "HOUDINI":
+        from WelcomeScreen.app.houdini import command
+        extfilter = ['*.ma', '*.mb']
+
+    else:
+        extfilter = []
+        from WelcomeScreen.app.other import command
+
 
 class WelcomeScreen(SplashScreen):
     settings = get_settings()
@@ -235,10 +260,6 @@ class WelcomeScreen(SplashScreen):
         if sender:
             sender.boldToggle(True)
 
-    def post_open(self):
-        if self.settings['close_on_open']:
-            self.exit()
-    
     def update_settings(self):
         self.settings['startup_show'] = self.settings_show_on_startup.isChecked()
         self.settings['full_screen'] = self.settings_fullscreen.isChecked()
