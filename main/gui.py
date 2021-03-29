@@ -13,6 +13,7 @@ try:
     from .component.FileBrowser import FileBrowser
     from .component.RecentList import RecentList
     from .component.SplashScreen import SplashScreen
+    from .component.QStyleSheet import styleSheet
     from .config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
     if APP == "NUKE":
@@ -36,6 +37,7 @@ except:
     from WelcomeScreen.main.component.FileBrowser import FileBrowser
     from WelcomeScreen.main.component.RecentList import RecentList
     from WelcomeScreen.main.component.SplashScreen import SplashScreen
+    from WelcomeScreen.main.component.Qss import styleSheet
     from WelcomeScreen.main.config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
     if APP == "NUKE":
@@ -126,7 +128,7 @@ class WelcomeScreen(SplashScreen):
         self.recent_search.setStyleSheet("""color:rgb(180, 180, 180); 
                                             padding:4px 4px 4px 20px; 
                                             background-image:url(%s/search.png); 
-                                            background-color:rgb(50, 50, 50); 
+                                            background-color:transparent; 
                                             background-position: left; 
                                             background-repeat:no-repeat""" % ICON_PATH)
         self.recent_search.setPlaceholderText("Search Recent Files")
@@ -197,24 +199,6 @@ class WelcomeScreen(SplashScreen):
 
         self.content_widget.addWidget(self.about_widget)
         
-    def init_ui(self):
-        if hasattr(self, 'settings_widget'):
-            self.settings_show_on_startup.setChecked(self.settings['startup_show'])
-            self.settings_fullscreen.setChecked(self.settings['full_screen'])
-            self.settings_close_on_open.setChecked(self.settings['close_on_open'])
-            self.settings_open_new_window.setChecked(self.settings['new_window'])
-
-        if hasattr(self, 'filebrowser_widget'):
-            recent_files = get_recent()[PROJECT][APP]
-            if recent_files:
-                latest = max(recent_files, key=lambda k : k['access_date'] )
-                self.filebrowser_widget.setRoot(os.path.dirname(latest['path']))
-                self.filebrowser_widget.selectPath(latest['path'])
-
-        if hasattr(self, 'recent_widget') and hasattr(self, 'recent_widget'):
-            self.switch_to(self.recent_widget, self.recent_btn)
-            self.update_recent_file_list()
-
     def paintEvent(self, QPaintEvent):
         super(WelcomeScreen, self).paintEvent(QPaintEvent)
 
@@ -240,18 +224,30 @@ class WelcomeScreen(SplashScreen):
                 painter.drawLine(line)
 
         # Logo
-        painter.setOpacity(self.opacity) 
+        painter.setOpacity(1) 
         painter.setPen(QPen(QColor(255, 255, 255)))
         painter.setFont(QFont("Arial", self.logo_height/3))
         painter.drawText(QRect(x1+35, y1+35, x2-35, self.logo_height-35), Qt.AlignLeft, PROJECT)
 
-    def new_cmd(self):
-        self.post_open()
-        command.new_scene(new_window=self.settings["new_window"])
+    def init_ui(self):
+        if hasattr(self, 'settings_widget'):
+            self.settings_show_on_startup.setChecked(self.settings['startup_show'])
+            self.settings_fullscreen.setChecked(self.settings['full_screen'])
+            self.settings_close_on_open.setChecked(self.settings['close_on_open'])
+            self.settings_open_new_window.setChecked(self.settings['new_window'])
 
-    def open_cmd(self, filepath=""):
-        self.post_open()
-        command.open_file(filepath, new_window=self.settings["new_window"])
+        if hasattr(self, 'filebrowser_widget'):
+            recent_files = get_recent()[PROJECT][APP]
+            if recent_files:
+                latest = max(recent_files, key=lambda k : k['access_date'] )
+                self.filebrowser_widget.setRoot(os.path.dirname(latest['path']))
+                self.filebrowser_widget.selectPath(latest['path'])
+
+        if hasattr(self, 'recent_widget') and hasattr(self, 'recent_widget'):
+            self.switch_to(self.recent_widget, self.recent_btn)
+            self.update_recent_file_list()
+
+        self.setStyleSheet(styleSheet)
 
     def switch_to(self, target, sender):
         self.content_widget.setCurrentWidget(target)
@@ -274,6 +270,18 @@ class WelcomeScreen(SplashScreen):
         self.recent_list.clear()
         self.recent_list.add_items(recent_files)
         self.update()
+        
+    def post_open(self):
+        if self.settings['close_on_open']:
+            self.exit()
+
+    def new_cmd(self):
+        self.post_open()
+        command.new_scene(new_window=self.settings["new_window"])
+
+    def open_cmd(self, filepath=""):
+        self.post_open()
+        command.open_file(filepath, new_window=self.settings["new_window"])
 
 def start():
     ws = WelcomeScreen(parent=command.get_app_window())

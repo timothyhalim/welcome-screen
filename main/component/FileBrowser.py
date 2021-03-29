@@ -483,7 +483,7 @@ class FileBrowser(QWidget):
             cp = self.currentPath.text()
             if re.search("^\"(.*?)\"$", cp) or re.search("(.*?)\.\.$", cp):
                 self.currentPath.setText(self.cleanupPath(cp))
-
+                            
             splits = cp.split("/")
             path = "/".join(splits[:-1]) if len(splits) > 1 else cp + "/"
             self.setRoot(path)

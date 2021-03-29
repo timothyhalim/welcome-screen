@@ -36,9 +36,8 @@ class IconLabel(QWidget):
             self.label = QLabel()
             self.text = name
             self.layout.addWidget(self.label)
-            self.textFont = "Arial"
-            self.textSize = 5
-            self.label.setText('<font color = #B4B4B4 size = %s face = %s>%s</font>' % (self.textSize, self.textFont, self.text))
+            self.label.setFont(QFont("Arial", 11))
+            self.label.setText('<font color = #B4B4B4>%s</font>' % (self.text))
             # self.label.setToolTip(name)
             self.label.setFixedWidth(110)
 
@@ -54,9 +53,9 @@ class IconLabel(QWidget):
             self.bold = state
             currentText = self.label.text()
             if self.bold:
-                self.label.setText("<b><u>%s</u></b>" %(currentText))
+                self.label.setText("<b>%s</b>" %(currentText))
             elif not self.bold:
-                pattern = r"^<b><u>(.*?)</u></b>$"
+                pattern = r"^<b>(.*?)</b>$"
                 result = re.search(pattern, currentText)
                 if result:
                     self.label.setText(result.group(1))
@@ -70,18 +69,18 @@ class IconLabel(QWidget):
 
 
     def enterEvent(self, event):
-        self.setStyleSheet("background-color: rgb(80, 80, 80, 255); border-radius: 3px;")
+        self.setStyleSheet("background-color: rgb(80, 80, 80);")
         self.changeColor("#FFC132")
 
     def leaveEvent(self,event):
-        self.setStyleSheet("background-color: rgb(54, 54, 54, 0); border-radius: 3px;")
+        self.setStyleSheet("background-color: transparent;")
         self.changeColor("#B4B4B4")
 
     def mousePressEvent(self, event):
-        self.setStyleSheet("background-color: rgb(30, 30, 30, 255); border-radius: 3px;")
+        self.setStyleSheet("background-color: rgb(30, 30, 30);")
         self.changeColor("#DFA112")
 
     def mouseReleaseEvent(self, event):
-        self.setStyleSheet("background-color: rgb(80, 80, 80, 255); border-radius: 3px;")
+        self.setStyleSheet("background-color: rgb(80, 80, 80);")
         self.changeColor("#FFC132")
         self.emit(SIGNAL('clicked()'))

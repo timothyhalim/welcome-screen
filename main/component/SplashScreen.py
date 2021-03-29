@@ -23,7 +23,7 @@ class SplashScreen(QDialog):
         self.minHeight = minheight
         self.state = "Opening"
         self.mainOpacity = 0.0
-        self.max_opacity = 0.6
+        self.max_opacity = 0.8 if fullscreen else 0.2
         self.opening_animation = self.fade_animation(0.0, self.max_opacity, 250, self.animated)
         self.closing_animation = self.fade_animation(self.max_opacity, 0.0, 250, self.animated)
         
@@ -36,7 +36,7 @@ class SplashScreen(QDialog):
         self.footer_layout = QHBoxLayout(self.footer_widget)
         self.footer_layout.setContentsMargins(0,0,0,0)
         self.close_btn = QPushButton("Close")
-        self.close_btn.setMinimumWidth(60)
+        self.close_btn.setMinimumWidth(70)
         # self.close_btn.setStyleSheet("color:rgb(50, 50, 50); background-color:rgb(135, 195, 240); font-family:Arial")
 
         self.footer_layout.addStretch()
@@ -158,6 +158,10 @@ class SplashScreen(QDialog):
                 max(self.height()-self.shadow, self.minHeight)
             )
         self.fullscreen = fullscreen
+        self.max_opacity = 0.8 if self.fullscreen else 0.2
+        self.opening_animation = self.fade_animation(0.0, self.max_opacity, 250, self.animated)
+        self.closing_animation = self.fade_animation(self.max_opacity, 0.0, 250, self.animated)
+        
         self.center_widget()
     
     def change_resolution(self):
