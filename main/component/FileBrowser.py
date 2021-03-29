@@ -146,9 +146,12 @@ class FileModel(QAbstractTableModel):
             if path != self.rootPath():
                 self._data = []
                 self.beginResetModel()
-                self.endResetModel()
                 self._qdir.setPath(path)
                 self._data = self._qdir.entryInfoList() if path else self._drives
+                backPath = os.path.join(self.rootPath(), "..").replace("\\", "/")
+                if not backPath in [d.filePath() for d in self._data] and self.rootPath() != "":
+                    self._data.insert(0, QFileInfo(backPath))
+                self.endResetModel()
                 self.rootPathChanged.emit(self.rootPath(), prevRoot)
 
     def refresh(self):
@@ -298,7 +301,7 @@ class FileList(QTableView):
         drives = [d.filePath().lower() for d in QDir.drives()]
         return path.lower() in drives
 
-    def getRoot(self):
+    def root(self):
         return self.fileModel.rootPath()
 
     def setRoot(self, path):
@@ -450,7 +453,7 @@ class FileBrowser(QWidget):
         self.changeCurrentPath(self.fileList.path)
 
     def onRootChanged(self):
-        root = self.fileList.getRoot()
+        root = self.fileList.root()
         currentText = self.currentPath.text()
         self.changeCurrentPath(root+currentText[len(root):])
 
@@ -485,7 +488,7 @@ class FileBrowser(QWidget):
             path = "/".join(splits[:-1]) if len(splits) > 1 else cp + "/"
             self.setRoot(path)
 
-            files = [f.lower() for f in self.fileList.getFiles()]
+            files = [f.lower() for f in self.files]
             for file in files:
                 if cp.lower() in file:
                     self.selectPath(file)
@@ -505,7 +508,9 @@ class FileBrowser(QWidget):
         self.fileList.selectPath(path)
 
     def setRoot(self, path):
-        self.fileList.setRoot(path)
+        if path != self.fileList.root():
+            self.fileList.setRoot(path)
+            self.files = self.fileList.getFiles()
 
     def execute(self):
         if os.path.isfile(self.fileList.path):

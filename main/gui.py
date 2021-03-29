@@ -186,7 +186,7 @@ class WelcomeScreen(SplashScreen):
                 self.filebrowser_widget.setRoot(os.path.dirname(latest['path']))
                 self.filebrowser_widget.selectPath(latest['path'])
 
-        if hasattr(self, 'recent_widget'):
+        if hasattr(self, 'recent_widget') and hasattr(self, 'recent_widget'):
             self.switch_to(self.recent_widget, self.recent_btn)
             self.update_recent_file_list()
 
