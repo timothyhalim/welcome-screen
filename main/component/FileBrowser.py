@@ -1,6 +1,7 @@
 # TODO 
 
 import subprocess
+import sys
 import os
 import re
 from glob import glob
@@ -14,44 +15,50 @@ except:
     from PySide.QtCore import *
 
 def getDrives():
-    drives = []
-    keys = None
-    driveTypes = [
-        "Unknown",
-        "No Root Directory",
-        "Removable Disk",
-        "Local Disk",
-        "Network Drive",
-        "Compact Disc",
-        "RAM Disk"
-    ]
-    startupinfo = subprocess.STARTUPINFO()
-    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    argument = " ".join(["wmic", "logicaldisk", "get", "/format:csv"])
-    result = subprocess.Popen(
-                argument, 
-                stdout=subprocess.PIPE, 
-                stdin=subprocess.PIPE, 
-                stderr=subprocess.PIPE, 
-                startupinfo=startupinfo, 
-                universal_newlines=True
-            )
+    platform = sys.platform
+    if platform.startswith("win"):
+        drives = []
+        keys = None
+        driveTypes = [
+            "Unknown",
+            "No Root Directory",
+            "Removable Disk",
+            "Local Disk",
+            "Network Drive",
+            "Compact Disc",
+            "RAM Disk"
+        ]
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        argument = " ".join(["wmic", "logicaldisk", "get", "/format:csv"])
+        result = subprocess.Popen(
+                    argument, 
+                    stdout=subprocess.PIPE, 
+                    stdin=subprocess.PIPE, 
+                    stderr=subprocess.PIPE, 
+                    startupinfo=startupinfo, 
+                    universal_newlines=True
+                )
 
-    for line in result.stdout.readlines():
-        if line in ["", "\n"]: continue
-        splits = line.split(",")
-        if keys is None:
-            keys = splits
-        if splits != keys:
-            letter = splits[keys.index("Caption")]
-            driveType = splits[keys.index("DriveType")]
-            drivePath = splits[keys.index("ProviderName")]
-            driveName = splits[keys.index("VolumeName")]
-            
-            drive = QFileInfo(letter+"/")
-            drive.driveType = driveTypes[int(driveType)]
-            drive.driveName = drivePath if drivePath else driveName if driveName else driveTypes[int(driveType)]
-            drives.append(drive)
+        for line in result.stdout.readlines():
+            if line in ["", "\n"]: continue
+            splits = line.split(",")
+            if keys is None:
+                keys = splits
+            if splits != keys:
+                letter = splits[keys.index("Caption")]
+                driveType = splits[keys.index("DriveType")]
+                drivePath = splits[keys.index("ProviderName")]
+                driveName = splits[keys.index("VolumeName")]
+                
+                drive = QFileInfo(letter+"/")
+                drive.driveType = driveTypes[int(driveType)]
+                drive.driveName = drivePath if drivePath else driveName if driveName else driveTypes[int(driveType)]
+                drives.append(drive)
+    elif platform.startswith("linux"):
+        drives = QDir.drives()
+    elif platform == "darwin":
+        drives = QDir.drives()
     return drives
 
 def reconnect(signal, newhandler=None, oldhandler=None):        
@@ -143,6 +150,8 @@ class FileModel(QAbstractTableModel):
                 if re.search("[a-zA-Z]:/\.\.$", path):
                     path = ""
                 else:
+                    if path.endswith(":"):
+                        path += "/"
                     path = os.path.abspath(path).replace("\\", "/")
                 path = self.fixCase(path)
             if path != self.rootPath():

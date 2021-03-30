@@ -9,12 +9,12 @@ except:
 import os
 
 try:
-    from .component import ButtonIcon, FileBrowser, RecentList, SplashScreen, QStyleSheet
+    from .component import ButtonIcon, FileBrowser, RecentList, SplashScreen, WSStyleSheet
     from .config import command, APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
 except:
     # Workaround for pyside 1.xx
-    from WelcomeScreen.main.component import ButtonIcon, FileBrowser, RecentList, SplashScreen, QStyleSheet
+    from WelcomeScreen.main.component import ButtonIcon, FileBrowser, RecentList, SplashScreen, WSStyleSheet
     from WelcomeScreen.main.config import command, APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
 extfilter = command.get_app_ext()
@@ -57,13 +57,6 @@ class WelcomeScreen(SplashScreen):
         self.setup_recent_widget()
         self.setup_settings_widget()
         self.setup_about_widget()
-
-        # Signal
-        self.connect(self.new_btn    , SIGNAL('clicked()'), self.new_cmd)
-        self.connect(self.open_btn   , SIGNAL("clicked()"), lambda target=self.filebrowser_widget, sender=self.open_btn: self.switch_to(target, sender))
-        self.connect(self.recent_btn , SIGNAL("clicked()"), lambda target=self.recent_widget, sender=self.recent_btn: self.switch_to(target, sender))
-        self.connect(self.setting_btn, SIGNAL("clicked()"), lambda target=self.settings_widget, sender=self.setting_btn: self.switch_to(target, sender))
-        self.connect(self.about_btn  , SIGNAL("clicked()"), lambda target=self.about_widget, sender=self.about_btn: self.switch_to(target, sender))
         
         # Add To Master Layout
         self.menu_layout = QHBoxLayout()
@@ -78,9 +71,10 @@ class WelcomeScreen(SplashScreen):
         self.master_layout.addSpacing(10)
         self.master_layout.addLayout(self.menu_layout)
 
+        self.setStyleSheet(WSStyleSheet)
+
     def setup_filebrowser_widget(self):
         self.filebrowser_widget = FileBrowser(filterExtension=extfilter)
-        self.filebrowser_widget.executed.connect(self.open_cmd)
 
         self.content_widget.addWidget(self.filebrowser_widget)
 
@@ -102,17 +96,12 @@ class WelcomeScreen(SplashScreen):
         self.recent_widget_layout.addWidget(self.recent_search)
         self.recent_widget_layout.addWidget(self.recent_list)
         
-        # Signal
-        self.recent_search.textChanged.connect(self.update_recent_file_list)
-        self.recent_list.fileClicked.connect(self.open_cmd)
-        
         self.content_widget.addWidget(self.recent_widget)
         
     def setup_settings_widget(self):
         self.settings_widget = QWidget()
         self.settings_label = QLabel("Settings:")
         self.settings_label.setFont(QFont("Arial", 11))
-        self.settings_label.setStyleSheet("color:rgb(180, 180, 180)")
         self.settings_label_layout = QHBoxLayout()
         self.settings_label_layout.addWidget(self.settings_label)
         self.settings_label_layout.addStretch()
@@ -130,8 +119,6 @@ class WelcomeScreen(SplashScreen):
         for w in (self.settings_show_on_startup, self.settings_fullscreen, self.settings_open_new_window, self.settings_close_on_open):
             w.setFont(QFont("Arial", 10))
             self.settings_layout.addWidget(w)
-            w.clicked.connect(self.update_settings)
-        self.settings_fullscreen.clicked.connect(self.change_resolution)
         self.settings_layout.addStretch() 
 
         self.content_widget.addWidget(self.settings_widget)
@@ -194,11 +181,21 @@ class WelcomeScreen(SplashScreen):
         painter.drawText(QRect(x1+35, y1+35, x2-35, self.logo_height-35), Qt.AlignLeft, PROJECT)
 
     def init_ui(self):
+        self.connect(self.new_btn    , SIGNAL('clicked()'), self.new_cmd)
+        self.connect(self.open_btn   , SIGNAL("clicked()"), lambda target=self.filebrowser_widget, sender=self.open_btn: self.switch_to(target, sender))
+        self.connect(self.recent_btn , SIGNAL("clicked()"), lambda target=self.recent_widget, sender=self.recent_btn: self.switch_to(target, sender))
+        self.connect(self.setting_btn, SIGNAL("clicked()"), lambda target=self.settings_widget, sender=self.setting_btn: self.switch_to(target, sender))
+        self.connect(self.about_btn  , SIGNAL("clicked()"), lambda target=self.about_widget, sender=self.about_btn: self.switch_to(target, sender))
+
         if hasattr(self, 'settings_widget'):
             self.settings_show_on_startup.setChecked(self.settings['startup_show'])
             self.settings_fullscreen.setChecked(self.settings['full_screen'])
             self.settings_close_on_open.setChecked(self.settings['close_on_open'])
             self.settings_open_new_window.setChecked(self.settings['new_window'])
+
+            for w in (self.settings_show_on_startup, self.settings_fullscreen, self.settings_open_new_window, self.settings_close_on_open):
+                w.clicked.connect(self.update_settings)
+            self.settings_fullscreen.clicked.connect(self.change_resolution)
 
         if hasattr(self, 'filebrowser_widget'):
             recent_files = get_recent(PROJECT, APP)
@@ -207,11 +204,15 @@ class WelcomeScreen(SplashScreen):
                 self.filebrowser_widget.setRoot(os.path.dirname(latest['path']))
                 self.filebrowser_widget.selectPath(latest['path'])
 
+            self.filebrowser_widget.executed.connect(self.open_cmd)
+
         if hasattr(self, 'recent_widget') and hasattr(self, 'recent_widget'):
             self.switch_to(self.recent_widget, self.recent_btn)
             self.update_recent_file_list()
+
+            self.recent_search.textChanged.connect(self.update_recent_file_list)
+            self.recent_list.fileClicked.connect(self.open_cmd)
             
-        self.setStyleSheet(QStyleSheet)
 
     def switch_to(self, target, sender):
         self.content_widget.setCurrentWidget(target)

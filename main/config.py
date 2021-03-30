@@ -15,16 +15,9 @@ else:
 PROJECT = os.environ.get("PROJECTNAME", "Project")
 
 # APP command
-if APP == "NUKE":
-    from ..app.nuke import command
-
-elif APP == "MAYA":
-    from ..app.maya import command
-
-elif APP == "HOUDINI":
-    from ..app.houdini import command
-
-else:
+try:
+    exec("from ..app.{} import command".format(APP.lower()))
+except:
     from app.other import command
 
 def get_settings():
