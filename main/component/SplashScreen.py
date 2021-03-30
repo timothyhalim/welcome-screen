@@ -202,28 +202,28 @@ class SplashScreen(QDialog):
                 painter.setBrush(brush)
                 painter.setOpacity(self.opacity/self.max_opacity)
                 rect = QRect(x1, y1, x2-x1, y2-y1)
-                painter.drawRect(rect)
+                painter.drawRoundedRect(rect, 8, 8)
             
                 # Border
                 pen = QPen(QColor(35, 35, 35, 200))
                 pen.setWidth(1)
                 painter.setPen(pen)
                 
-                # Top Border
-                line = QLine(QPoint(x1, y1), QPoint(x2, y1))
-                painter.drawLine(line)
+                # # Top Border
+                # line = QLine(QPoint(x1, y1), QPoint(x2, y1))
+                # painter.drawLine(line)
                 
-                # Left Border
-                line = QLine(QPoint(x1, y1), QPoint(x1, y2))
-                painter.drawLine(line)
+                # # Left Border
+                # line = QLine(QPoint(x1, y1), QPoint(x1, y2))
+                # painter.drawLine(line)
 
-                # Right Border
-                line = QLine(QPoint(x2, y1), QPoint(x2, y2))
-                painter.drawLine(line)
+                # # Right Border
+                # line = QLine(QPoint(x2, y1), QPoint(x2, y2))
+                # painter.drawLine(line)
 
-                # Bottom Border
-                line = QLine(QPoint(x1, y2), QPoint(x2, y2))
-                painter.drawLine(line)
+                # # Bottom Border
+                # line = QLine(QPoint(x1, y2), QPoint(x2, y2))
+                # painter.drawLine(line)
                 
                 # Footer
                 line = QLine(QPoint(x1, y2-self.footer_widget.height()-17), QPoint(x2, y2-self.footer_widget.height()-17))

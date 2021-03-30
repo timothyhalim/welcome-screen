@@ -210,7 +210,7 @@ class WelcomeScreen(SplashScreen):
         if hasattr(self, 'recent_widget') and hasattr(self, 'recent_widget'):
             self.switch_to(self.recent_widget, self.recent_btn)
             self.update_recent_file_list()
-
+            
         self.setStyleSheet(QStyleSheet)
 
     def switch_to(self, target, sender):

@@ -215,6 +215,8 @@ class FileModel(QAbstractTableModel):
                 return data.lastModified()
         elif role == Qt.DecorationRole:
             if column == 0:
+                if data.filePath().endswith("/..") and data.isDir():
+                    return QIcon(QApplication.style().standardIcon(QStyle.SP_FileDialogBack))
                 return self._icons.icon(data)
         elif role == Qt.TextAlignmentRole:
             if column >= 1:
