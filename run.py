@@ -6,6 +6,7 @@ try:
 except:
     import inspect
     main_folder = os.path.normpath(os.path.join(inspect.getframeinfo(inspect.currentframe()).filename, ".."))
+
 if not main_folder in sys.path:
     sys.path.append(main_folder)
     
@@ -20,8 +21,6 @@ class MyMainWindow(QDialog):
         super(MyMainWindow, self).__init__(parent)
 
 app = QApplication(sys.argv)
-# foo = MyMainWindow()
-# foo.show()
     
 from main.gui import WelcomeScreen
 

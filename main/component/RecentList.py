@@ -18,7 +18,7 @@ class RecentLabel(QLabel):
         super(RecentLabel, self).__init__()
         self.setFixedHeight(30)
         self.filePath = ""
-        self.setStyleSheet("background-color: rgba(0,0,0,0)")
+        self.setStyleSheet("background: transparent")
         if info:
             self.update_file(info)
 

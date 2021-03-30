@@ -10,6 +10,9 @@ def get_app_window():
         if w.metaObject().className() == 'Foundry::UI::DockMainWindow':
             return w
 
+def get_app_ext():
+    return ['*.nk']
+
 def check():
     ok = True
     if nuke.modified():

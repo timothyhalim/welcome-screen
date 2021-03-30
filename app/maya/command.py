@@ -9,6 +9,9 @@ def get_app_window():
         if w.objectName() == 'MayaWindow':
             return w
 
+def get_app_ext():
+    return ['*.ma', '*.mb']
+
 def check():
     ok = False
     if cmds.file(q=True, modified=True):

@@ -8,7 +8,12 @@ except:
 
 import os
 
-ICON_PATH = os.path.normpath(os.path.join(__file__, "..", "..", "icons"))
+try:
+    ICON_PATH = os.path.normpath(os.path.join(__file__, "..", "..", "icons"))
+except:
+    import inspect
+    ICON_PATH = os.path.normpath(os.path.join(inspect.getframeinfo(inspect.currentframe()).filename, "..", "..", "icons"))
+
 
 class ButtonIcon(QPushButton):
     clicked = Signal(object)

@@ -9,54 +9,15 @@ except:
 import os
 
 try:
-    from .component.ButtonIcon import ButtonIcon
-    from .component.FileBrowser import FileBrowser
-    from .component.RecentList import RecentList
-    from .component.SplashScreen import SplashScreen
-    from .component.QStyleSheet import styleSheet
-    from .config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
-
-    if APP == "NUKE":
-        from ..app.nuke import command
-        extfilter = ['*.nk']
-
-    elif APP == "MAYA":
-        from ..app.maya import command
-        extfilter = ['*.ma', '*.mb']
-
-    elif APP == "HOUDINI":
-        from ..app.houdini import command
-        extfilter = ['*.ma', '*.mb']
-
-    else:
-        extfilter = []
-        from app.other import command
+    from .component import ButtonIcon, FileBrowser, RecentList, SplashScreen, QStyleSheet
+    from .config import command, APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
 except:
     # Workaround for pyside 1.xx
-    from WelcomeScreen.main.component.ButtonIcon import ButtonIcon
-    from WelcomeScreen.main.component.FileBrowser import FileBrowser
-    from WelcomeScreen.main.component.RecentList import RecentList
-    from WelcomeScreen.main.component.SplashScreen import SplashScreen
-    from WelcomeScreen.main.component.QStyleSheet import styleSheet
-    from WelcomeScreen.main.config import APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
+    from WelcomeScreen.main.component import ButtonIcon, FileBrowser, RecentList, SplashScreen, QStyleSheet
+    from WelcomeScreen.main.config import command, APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
 
-    if APP == "NUKE":
-        from WelcomeScreen.app.nuke import command
-        extfilter = ['*.nk']
-
-    elif APP == "MAYA":
-        from WelcomeScreen.app.maya import command
-        extfilter = ['*.ma', '*.mb']
-
-    elif APP == "HOUDINI":
-        from WelcomeScreen.app.houdini import command
-        extfilter = ['*.ma', '*.mb']
-
-    else:
-        extfilter = []
-        from WelcomeScreen.app.other import command
-
+extfilter = command.get_app_ext()
 
 class WelcomeScreen(SplashScreen):
     settings = get_settings()
@@ -240,7 +201,7 @@ class WelcomeScreen(SplashScreen):
             self.settings_open_new_window.setChecked(self.settings['new_window'])
 
         if hasattr(self, 'filebrowser_widget'):
-            recent_files = get_recent()[PROJECT][APP]
+            recent_files = get_recent(PROJECT, APP)
             if recent_files:
                 latest = max(recent_files, key=lambda k : k['access_date'] )
                 self.filebrowser_widget.setRoot(os.path.dirname(latest['path']))
@@ -250,7 +211,7 @@ class WelcomeScreen(SplashScreen):
             self.switch_to(self.recent_widget, self.recent_btn)
             self.update_recent_file_list()
 
-        self.setStyleSheet(styleSheet)
+        self.setStyleSheet(QStyleSheet)
 
     def switch_to(self, target, sender):
         self.content_widget.setCurrentWidget(target)
@@ -267,7 +228,7 @@ class WelcomeScreen(SplashScreen):
         save_settings(self.settings)
 
     def update_recent_file_list(self):
-        recent_files = get_recent()[PROJECT][APP]
+        recent_files = get_recent(PROJECT, APP)
         if self.recent_search.text():
             recent_files = [f for f in recent_files if self.recent_search.text().lower() in f['path'].lower()]
         self.recent_list.clear()

@@ -8,6 +8,9 @@ def get_app_window():
     for w in app.topLevelWidgets():
         return w
 
+def get_app_ext():
+    return []
+
 def check():
     pass
 

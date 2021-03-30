@@ -17,6 +17,9 @@ def get_app_window():
         if hasattr( w, 'windowIconText' ) and w.windowIconText():
             return w
 
+def get_app_ext():
+    return ['*.hip']
+
 def check():
     pass
 

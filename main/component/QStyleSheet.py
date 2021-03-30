@@ -1,4 +1,4 @@
-styleSheet = '''
+QStyleSheet = '''
 QWidget {
 	color: #ddd;
 	background: transparent;
@@ -10,13 +10,17 @@ QWidget:disabled {
 }
 
 QLineEdit {
-	border-style: solid;
 	border: 1px solid #232323;
 	border-radius:4px;
 }
 
+QToolTip {
+	border: 1px solid #232323;
+	background: #232323;
+	color: #ddd;
+}
+
 QLineEdit:hover, QLineEdit:focus {
-	border-style: solid;
 	border: 1px solid #FFC132;
     selection-color: #232323;
 	selection-background-color: #FFC132;
@@ -44,7 +48,7 @@ QAbstractItemView {
 }
 
 QHeaderView::section {
-	Background-color:#282828;
+	Background-color:#232323;
 	padding:5px;
 	border:0;
 	font-weight: bold;
