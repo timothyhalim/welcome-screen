@@ -4,12 +4,12 @@ import nuke
 
 ### Add to Sys Path ###
 main_folder = os.path.normpath(os.path.join(__file__, "..", "..", "..", ".."))
-nuke.tprint("Welcome Screen:", main_folder)
 if not main_folder in sys.path:
     sys.path.append(main_folder)
 
 ### Registering Callback ###
-from WelcomeScreen.main import config as wsconfig
+moduleName = os.path.basename(os.path.normpath(os.path.join(__file__, "..", "..", "..")))
+exec("from {} import config as wsconfig".format(moduleName))
 
 def store_recent():
     wsconfig.add_recent(nuke.Root().knob("name").value())
@@ -18,7 +18,7 @@ nuke.addOnScriptLoad(store_recent)
 nuke.addOnScriptSave(store_recent)
 
 if nuke.env['NukeVersionMajor'] < 10:
-    execfile(os.path.join(main_folder, "WelcomeScreen", "main", "gui.py"))
+    execfile(os.path.join(main_folder, moduleName, "main.py"))
     
     ### Import Required Modules ###
     def wsgui_start():
@@ -35,7 +35,7 @@ if nuke.env['NukeVersionMajor'] < 10:
 
 else:
     ### Import Required Modules ###
-    from WelcomeScreen.main import gui as wsgui
+    exec("from {} import main as wsgui".format(moduleName))
 
     ### Registering Menu ###
     menu = nuke.menu('Nuke')

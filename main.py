@@ -9,18 +9,21 @@ except:
 import os
 
 try:
-    from .component import ButtonIcon, FileBrowser, RecentList, SplashScreen, WSStyleSheet
-    from .config import command, APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
-
+    from component import ButtonIcon, FileBrowser, RecentList, SplashScreen, WSStyleSheet
+    from app import command
+    import config
 except:
-    # Workaround for pyside 1.xx
-    from WelcomeScreen.main.component import ButtonIcon, FileBrowser, RecentList, SplashScreen, WSStyleSheet
-    from WelcomeScreen.main.config import command, APP, ICON_PATH, PROJECT, get_recent, save_recent, get_settings, save_settings
-
-extfilter = command.get_app_ext()
+    # Workaround for PySide 1.xx
+    import inspect
+    moduleName = os.path.basename(os.path.normpath(os.path.join(inspect.getframeinfo(inspect.currentframe()).filename, "..")))
+    exec("""
+from {0}.component import ButtonIcon, FileBrowser, RecentList, SplashScreen, WSStyleSheet
+from {0}.app import command
+from {0} import config 
+""".format(moduleName))
 
 class WelcomeScreen(SplashScreen):
-    settings = get_settings()
+    settings = config.get_settings()
 
     def __init__(self, parent=None):
         super(WelcomeScreen, self).__init__(parent, fullscreen=self.settings['full_screen'])
@@ -74,7 +77,7 @@ class WelcomeScreen(SplashScreen):
         self.setStyleSheet(WSStyleSheet)
 
     def setup_filebrowser_widget(self):
-        self.filebrowser_widget = FileBrowser(filterExtension=extfilter)
+        self.filebrowser_widget = FileBrowser(filterExtension=command.get_app_ext())
 
         self.content_widget.addWidget(self.filebrowser_widget)
 
@@ -86,7 +89,7 @@ class WelcomeScreen(SplashScreen):
                                             background-image:url(%s/search.png); 
                                             background-color:transparent; 
                                             background-position: left; 
-                                            background-repeat:no-repeat""" % ICON_PATH)
+                                            background-repeat:no-repeat""" % config.ICON_PATH)
         self.recent_search.setPlaceholderText("Search Recent Files")
 
         self.recent_list = RecentList()
@@ -178,7 +181,7 @@ class WelcomeScreen(SplashScreen):
         painter.setOpacity(1) 
         painter.setPen(QPen(QColor(255, 255, 255)))
         painter.setFont(QFont("Arial", self.logo_height/3))
-        painter.drawText(QRect(x1+35, y1+35, x2-35, self.logo_height-35), Qt.AlignLeft, PROJECT)
+        painter.drawText(QRect(x1+35, y1+35, x2-35, self.logo_height-35), Qt.AlignLeft, config.PROJECT)
 
     def init_ui(self):
         self.connect(self.new_btn    , SIGNAL('clicked()'), self.new_cmd)
@@ -198,7 +201,7 @@ class WelcomeScreen(SplashScreen):
             self.settings_fullscreen.clicked.connect(self.change_resolution)
 
         if hasattr(self, 'filebrowser_widget'):
-            recent_files = get_recent(PROJECT, APP)
+            recent_files = config.get_recent(config.PROJECT, config.APP)
             if recent_files:
                 latest = max(recent_files, key=lambda k : k['access_date'] )
                 self.filebrowser_widget.setRoot(os.path.dirname(latest['path']))
@@ -226,10 +229,10 @@ class WelcomeScreen(SplashScreen):
         self.settings['full_screen'] = self.settings_fullscreen.isChecked()
         self.settings['close_on_open'] = self.settings_close_on_open.isChecked()
         self.settings['new_window'] = self.settings_open_new_window.isChecked()
-        save_settings(self.settings)
+        config.save_settings(self.settings)
 
     def update_recent_file_list(self):
-        recent_files = get_recent(PROJECT, APP)
+        recent_files = config.get_recent(config.PROJECT, config.APP)
         if self.recent_search.text():
             recent_files = [f for f in recent_files if self.recent_search.text().lower() in f['path'].lower()]
         self.recent_list.clear()

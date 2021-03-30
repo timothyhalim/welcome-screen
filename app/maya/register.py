@@ -13,9 +13,14 @@ except:
 if not main_folder in sys.path:
     sys.path.append(main_folder)
 
+moduleName = os.path.basename(os.path.normpath(os.path.join(__file__, "..", "..", "..")))
+
 ### Import Required Modules ###
-from WelcomeScreen.main import gui as wsgui
-from WelcomeScreen.main import config as wsconfig
+exec("""
+from {0} import main as wsgui
+from {0} import config as wsconfig
+
+""".format(moduleName))
 reload(wsgui)
 reload(wsconfig)
 

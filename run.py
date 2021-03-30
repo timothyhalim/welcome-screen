@@ -22,7 +22,7 @@ class MyMainWindow(QDialog):
 
 app = QApplication(sys.argv)
     
-from main.gui import WelcomeScreen
+from main import WelcomeScreen
 
 ws = WelcomeScreen(parent=None)
 ws.start()

@@ -14,12 +14,6 @@ else:
     SETTING_PATH = os.path.join(SETTING_PATH, "Documents")
 PROJECT = os.environ.get("PROJECTNAME", "Project")
 
-# APP command
-try:
-    exec("from ..app.{} import command".format(APP.lower()))
-except:
-    from app.other import command
-
 def get_settings():
     if os.path.isfile(SETTING_PATH+"/welcomescreen_settings.json"):
         with open(SETTING_PATH+"/welcomescreen_settings.json", "r") as setting_file: 
