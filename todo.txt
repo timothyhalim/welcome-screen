@@ -1,3 +1,0 @@
-import directly from WelcomeScreen __init__.py
-
-filter by username -optional

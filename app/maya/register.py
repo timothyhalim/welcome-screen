@@ -5,23 +5,24 @@ import maya.OpenMaya as om
 
 ### Add to Sys Path ###
 try:
-    main_folder = os.path.normpath(os.path.join(__file__, "..", "..", "..", ".."))
+    currentFile = __file__
 except:
     import inspect
-    main_folder = os.path.normpath(os.path.join(inspect.getframeinfo(inspect.currentframe()).filename, "..", "..", "..", ".."))
+    currentFile = inspect.getframeinfo(inspect.currentframe()).filename
     
+main_folder = os.path.normpath(os.path.join(currentFile, "..", "..", "..", ".."))
+moduleName = os.path.basename(os.path.normpath(os.path.join(currentFile, "..", "..", "..")))
+
 if not main_folder in sys.path:
     sys.path.append(main_folder)
 
-moduleName = os.path.basename(os.path.normpath(os.path.join(__file__, "..", "..", "..")))
-
 ### Import Required Modules ###
 exec("""
-from {0} import main as wsgui
+from {0} import main as WelcomeScreen
 from {0} import config as wsconfig
 
 """.format(moduleName))
-reload(wsgui)
+reload(WelcomeScreen)
 reload(wsconfig)
 
 ### Registering Callback ###
@@ -50,15 +51,15 @@ except:
 ### Registering HotKey ###
 name = "WelcomeScreen"
 annotation = "Welcome Screen Show"
-command = "from WelcomeScreen.main import gui as wsgui; wsgui.start()"
+command = "from {0} import main as WelcomeScreen; WelcomeScreen.start()".format(moduleName)
 
 try:
     if welcomescreeninitialized:
         print("Already Registered")
         pass
 except:
-    # if cmds.runTimeCommand(name, q=True, exists=True):
-        # cmds.runTimeCommand(name, e=True, delete=True)
+    if cmds.runTimeCommand(name, q=True, exists=True):
+        cmds.runTimeCommand(name, e=True, delete=True)
     if not cmds.runTimeCommand(name, q=True, exists=True):
         cmds.runTimeCommand(
                 name,
@@ -99,4 +100,4 @@ except:
 
 ### Start Up Show ###
 if wsconfig.get_settings()['startup_show']:
-	wsgui.start()
+	WelcomeScreen.start()

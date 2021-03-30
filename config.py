@@ -12,7 +12,7 @@ if SETTING_PATH is None:
     SETTING_PATH = os.path.normpath(os.path.join(__file__, "..", "..", "users", os.environ.get('USERNAME', 'Anonymus'))).replace("\\", "/")
 else:
     SETTING_PATH = os.path.join(SETTING_PATH, "Documents")
-PROJECT = os.environ.get("PROJECTNAME", "Project")
+PROJECT = os.environ.get("PROJECTNAME", "Welcome!")
 
 def get_settings():
     if os.path.isfile(SETTING_PATH+"/welcomescreen_settings.json"):
@@ -67,7 +67,7 @@ def save_recent(recent):
         
 def add_recent(workfile):
     if workfile != "":
-        recent = get_recent()
+        recent = get_recent(None, None)
         data = next((data for data in recent[PROJECT][APP] if data["path"] == workfile), None)
         if data:
             data["access_date"] = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
