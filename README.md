@@ -9,23 +9,17 @@ twitter: your_username
 email: mail@timo.ink
 -->
 
-<!-- PROJECT SHIELDS -->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-<!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
-
 <!-- PROJECT LOGO -->
 <br />
 <h3 align="center"><a href="https://github.com/timothyhalim/welcome-screen">Welcome Screen</a></h3>
-    <br />
+    <br>
     <p align="center">
         <a href="https://github.com/timothyhalim/welcome-screen">
-            <img src="preview/WelcomeScreen.png" alt="WelcomeScreen" width="800" height="600">
+            <img src="preview/WelcomeScreen.png" alt="WelcomeScreen" width="600" height="450">
         </a>
+        <br>
         An awesome welcome screen for your Digital Content Creation Software
-        <br />
+        <br>
         <a href="https://github.com/timothyhalim/welcome-screen/tree/main/preview">View Demo</a>
         •
         <a href="https://github.com/timothyhalim/welcome-screen/issues">Report Bug</a>
@@ -81,17 +75,15 @@ Tested to be Working on:
 <!-- Usage -->
 ## Usage
 After following the install tutorial, you can run Welcome Screen by Pressing Ctrl + Shift + W
-For your studio need you might want to change some parameter in config.py
+For your studio need you might want to change some parameter in <a href="https://github.com/timothyhalim/welcome-screen/blob/main/config.py">config.py</a> 
 
-* Project Name is derived from environment variable using os.environ.get("PROJECTNAME", "Welcome") in config.py
+* Project Name is derived from environment variable using os.environ.get("PROJECTNAME", "Welcome")
 * Settings and RecentFiles filepath is also located in config.py
 
 <!-- ROADMAP -->
 ## Roadmap
 
 See the [open issues](https://github.com/timothyhalim/welcome-screen/issues) for a list of proposed features (and known issues).
-
-
 
 <!-- CONTRIBUTING -->
 ## Contributing
@@ -104,13 +96,10 @@ Contributions are what make the open source community such an amazing place to b
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
-
-
+Released under the GNU General Public License (GPL, or “free software”).
 
 <!-- CONTACT -->
 ## Contact
