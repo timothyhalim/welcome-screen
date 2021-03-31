@@ -10,7 +10,7 @@ class SplashScreen(QDialog):
     def __init__(self, parent=None, fullscreen=False, minwidth=800, minheight=600, transparent=True):
         super(SplashScreen, self).__init__(parent)
 
-        self.setAttribute(Qt.WA_DeleteOnClose)
+        # self.setAttribute(Qt.WA_DeleteOnClose)
         if transparent:
             self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)

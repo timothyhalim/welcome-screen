@@ -257,6 +257,7 @@ class FileList(QTableView):
 
     def __init__(self, parent=None, filterExtension=[]):
         super(FileList, self).__init__(parent)
+        self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.path = ""
         self.prev = ""
@@ -287,7 +288,7 @@ class FileList(QTableView):
             header.setResizeMode(0, QHeaderView.Stretch)
         self.setColumnWidth(1,80)
         self.setColumnWidth(2,80)
-        self.setColumnWidth(3,110)
+        self.setColumnWidth(3,150)
         
         # Signal
         self.fileModel.rootPathChanged.connect(self.onRootChanged)
@@ -397,6 +398,7 @@ class FileBrowser(QWidget):
     executed = Signal(str)
     def __init__(self, parent=None, filterExtension=[], exeLabel="Open", title="Open File"):
         QWidget.__init__(self, parent=None)
+        self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.fileList = FileList(filterExtension=filterExtension)
 

@@ -185,22 +185,10 @@ class WelcomeScreen(SplashScreen):
 
     def init_ui(self):
         self.connect(self.new_btn    , SIGNAL('clicked()'), self.new_cmd)
-        self.connect(self.open_btn   , SIGNAL("clicked()"), lambda target=self.filebrowser_widget, sender=self.open_btn: self.switch_to(target, sender))
-        self.connect(self.recent_btn , SIGNAL("clicked()"), lambda target=self.recent_widget, sender=self.recent_btn: self.switch_to(target, sender))
-        self.connect(self.setting_btn, SIGNAL("clicked()"), lambda target=self.settings_widget, sender=self.setting_btn: self.switch_to(target, sender))
         self.connect(self.about_btn  , SIGNAL("clicked()"), lambda target=self.about_widget, sender=self.about_btn: self.switch_to(target, sender))
 
-        if hasattr(self, 'settings_widget'):
-            self.settings_show_on_startup.setChecked(self.settings['startup_show'])
-            self.settings_fullscreen.setChecked(self.settings['full_screen'])
-            self.settings_close_on_open.setChecked(self.settings['close_on_open'])
-            self.settings_open_new_window.setChecked(self.settings['new_window'])
-
-            for w in (self.settings_show_on_startup, self.settings_fullscreen, self.settings_open_new_window, self.settings_close_on_open):
-                w.clicked.connect(self.update_settings)
-            self.settings_fullscreen.clicked.connect(self.change_resolution)
-
         if hasattr(self, 'filebrowser_widget'):
+            self.connect(self.open_btn   , SIGNAL("clicked()"), lambda target=self.filebrowser_widget, sender=self.open_btn: self.switch_to(target, sender))
             recent_files = config.get_recent(config.PROJECT, config.APP)
             if recent_files:
                 latest = max(recent_files, key=lambda k : k['access_date'] )
@@ -210,11 +198,23 @@ class WelcomeScreen(SplashScreen):
             self.filebrowser_widget.executed.connect(self.open_cmd)
 
         if hasattr(self, 'recent_widget') and hasattr(self, 'recent_widget'):
+            self.connect(self.recent_btn , SIGNAL("clicked()"), lambda target=self.recent_widget, sender=self.recent_btn: self.switch_to(target, sender))
             self.switch_to(self.recent_widget, self.recent_btn)
             self.update_recent_file_list()
 
             self.recent_search.textChanged.connect(self.update_recent_file_list)
             self.recent_list.fileClicked.connect(self.open_cmd)
+
+        if hasattr(self, 'settings_widget'):
+            self.connect(self.setting_btn, SIGNAL("clicked()"), lambda target=self.settings_widget, sender=self.setting_btn: self.switch_to(target, sender))
+            self.settings_show_on_startup.setChecked(self.settings['startup_show'])
+            self.settings_fullscreen.setChecked(self.settings['full_screen'])
+            self.settings_close_on_open.setChecked(self.settings['close_on_open'])
+            self.settings_open_new_window.setChecked(self.settings['new_window'])
+
+            for w in (self.settings_show_on_startup, self.settings_fullscreen, self.settings_open_new_window, self.settings_close_on_open):
+                w.clicked.connect(self.update_settings)
+            self.settings_fullscreen.clicked.connect(self.change_resolution)
             
 
     def switch_to(self, target, sender):
@@ -238,7 +238,7 @@ class WelcomeScreen(SplashScreen):
         self.recent_list.clear()
         self.recent_list.add_items(recent_files)
         self.update()
-        
+
     def post_open(self):
         if self.settings['close_on_open']:
             self.exit()
