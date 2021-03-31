@@ -53,8 +53,8 @@ Welcome screen work with other DCC software such as Maya, and Houdini that use Q
 Shows list of recently opened files and also build-in File Browser build using QT <br>
 
 Tested to be Working on:
-* Nuke 7, 10, 11
-* Maya 2017, 2018
+* Nuke 7-11
+* Maya 2017-2018
 
 ### Build With
 * [PySide2]() or [PySide]()
