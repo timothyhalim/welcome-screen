@@ -48,9 +48,9 @@ email: mail@timo.ink
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This project is inspired from www.nukepedia.com/python/ui/welcomescreen
-welcome screen work with other DCC software such as Maya, and Houdini that use QT as base
-Welcome Screen shows list of recently opened files and also buildin file browser build using QT
+This project is inspired from www.nukepedia.com/python/ui/welcomescreen <br>
+Welcome screen work with other DCC software such as Maya, and Houdini that use QT as base <br>
+Shows list of recently opened files and also build-in File Browser build using QT <br>
 
 Tested to be Working on:
 * Nuke 7, 10, 11
