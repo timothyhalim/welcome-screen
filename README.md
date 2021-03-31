@@ -1,3 +1,14 @@
+<!--
+repo name: welcome-screen
+description: An awesome welcome screen for your Digital Content Creation Software
+github name:  timothyhalim
+link: https://github.com/timothyhalim/welcome-screen
+logo path: 
+screenshot: preview/WelcomeScreen.png
+twitter: your_username
+email: mail@timo.ink
+-->
+
 <!-- PROJECT SHIELDS -->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
@@ -5,18 +16,17 @@
 [![Issues][issues-shield]][issues-url]
 <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-
-
 <!-- PROJECT LOGO -->
 <br />
 <h3 align="center"><a href="https://github.com/timothyhalim/welcome-screen">Welcome Screen</a></h3>
+    <br />
     <p align="center">
-        An awesome welcome screen for your Digital Content Creation Software
         <a href="https://github.com/timothyhalim/welcome-screen">
-            <img src="preview/WelcomeScreen.jpg" alt="WelcomeScreen">
+            <img src="preview/WelcomeScreen.png" alt="WelcomeScreen" width="800" height="600">
         </a>
+        An awesome welcome screen for your Digital Content Creation Software
         <br />
-        <a href="https://github.com/timothyhalim/welcome-screen/preview">View Demo</a>
+        <a href="https://github.com/timothyhalim/welcome-screen/tree/main/preview">View Demo</a>
         •
         <a href="https://github.com/timothyhalim/welcome-screen/issues">Report Bug</a>
         •
