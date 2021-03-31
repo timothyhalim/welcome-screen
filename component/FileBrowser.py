@@ -77,21 +77,8 @@ class SearchBar(QLineEdit):
     upPressed = Signal()
     downPressed = Signal()
 
-    def __init__(self, parent=None, completerContents=[]):
+    def __init__(self, parent=None):
         super(SearchBar, self).__init__(parent)
-
-        self._completer = QCompleter(self)
-        self._completer.setCompletionMode(QCompleter.PopupCompletion)
-        self._completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self.setCompleter(self._completer)
-        self.updateCompletionList(completerContents)
-        self.completerActive = self._completer.popup().isVisible()
-
-    def updateCompletionList(self, autocomplete_list):
-        self.autocomplete_model = QStandardItemModel()
-        for text in autocomplete_list:
-            self.autocomplete_model.appendRow(QStandardItem(text))
-        self._completer.setModel(self.autocomplete_model)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Up:
@@ -106,6 +93,7 @@ class FileModel(QAbstractTableModel):
 
     def __init__(self, root=""):
         super(FileModel, self).__init__()
+
         self._qdir = QDir()
         self._qdir.setFilter(QDir.NoDot | QDir.Files | QDir.AllDirs)
         self._headers = ("Filename", "Size", "Type", "Modified")
