@@ -9,16 +9,12 @@
 
 <!-- PROJECT LOGO -->
 <br />
-<p align="center">
-    <a href="https://github.com/timothyhalim/welcome-screen">
-        <img src="preview/WelcomeScreen.jpg" alt="Logo" width="80" height="80">
-    </a>
 <h3 align="center"><a href="https://github.com/timothyhalim/welcome-screen">Welcome Screen</a></h3>
     <p align="center">
         An awesome welcome screen for your Digital Content Creation Software
-        <br />
-        <a href="https://marketplace.visualstudio.com/items?itemName=oGranny.md-template"><strong>Visual studio market place 📃</strong></a>
-        <br />
+        <a href="https://github.com/timothyhalim/welcome-screen">
+            <img src="preview/WelcomeScreen.jpg" alt="WelcomeScreen">
+        </a>
         <br />
         <a href="https://github.com/timothyhalim/welcome-screen/preview">View Demo</a>
         •
@@ -57,16 +53,16 @@ Tested to be Working on:
 * Maya 2017, 2018
 
 ### Build With
-* [PySide2] / [PySide]
+* [PySide2]() or [PySide]()
 * [Python]()
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
 ### Prerequisites
-* Git
-* Python
-* PySide2 / PySide
+* [Git]()
+* [Python]()
+* [PySide2]() or [PySide]()
 
 ### Installation
 * Clone Repository
@@ -109,7 +105,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-timo.ink - mail@timo.ink
+<a href="https://timo.ink/">Timo.ink</a> - mail@timo.ink
 
 Project Link: [https://github.com/timothyhalim/welcome-screen](https://github.com/timothyhalim/welcome-screen)
 
