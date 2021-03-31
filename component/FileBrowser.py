@@ -73,12 +73,12 @@ def reconnect(signal, newhandler=None, oldhandler=None):
     if newhandler is not None:
         signal.connect(newhandler)
 
-class SearchBar(QLineEdit):
+class PathBar(QLineEdit):
     upPressed = Signal()
     downPressed = Signal()
 
     def __init__(self, parent=None):
-        super(SearchBar, self).__init__(parent)
+        super(PathBar, self).__init__(parent)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Up:
@@ -86,7 +86,7 @@ class SearchBar(QLineEdit):
         elif event.key() == Qt.Key_Down:
             self.downPressed.emit()
         else:
-            super(SearchBar, self).keyPressEvent(event)
+            super(PathBar, self).keyPressEvent(event)
 
 class FileModel(QAbstractTableModel):
     rootPathChanged = Signal(str, str)
@@ -401,7 +401,7 @@ class FileBrowser(QWidget):
         self.fileList = FileList(filterExtension=filterExtension)
 
         self.fileLayout = QHBoxLayout()
-        self.currentPath = SearchBar()
+        self.currentPath = PathBar()
         self.currentPath.setPlaceholderText("File Path")
         self.exeButton = QPushButton(exeLabel)
         self.fileLayout.addWidget(self.currentPath)
