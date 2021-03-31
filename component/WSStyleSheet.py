@@ -25,20 +25,20 @@ QLineEdit:hover, QLineEdit:focus {
     selection-color: #232323;
 	selection-background-color: #FFC132;
 }
-
+QCheckBox::indicator {
+	width : 12px;
+	height : 12px;
+	border-radius: 8px;
+	border: 2px solid #232323;
+}
 QCheckBox::indicator:checked:hover, QCheckBox::indicator:unchecked:hover {
 	border: 2px solid #FFC132;
-	border-radius: 6px;
 }
 QCheckBox::indicator:checked {
 	background: #ddd;
-	border: 2px solid #232323;
-	border-radius: 6px;
 }
 QCheckBox::indicator:unchecked {
 	background: #232323;
-	border: 2px solid #232323;
-	border-radius: 6px;
 }
 
 QAbstractItemView {

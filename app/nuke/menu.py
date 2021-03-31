@@ -17,7 +17,7 @@ if not main_folder in sys.path:
     sys.path.append(main_folder)
 
 ### Registering Callback ###
-exec("from {} import config as wsconfig".format(moduleName))
+exec("from {0} import config as wsconfig".format(moduleName))
 
 def store_recent():
     wsconfig.add_recent(nuke.Root().knob("name").value())
@@ -25,7 +25,7 @@ def store_recent():
 nuke.addOnScriptLoad(store_recent)
 nuke.addOnScriptSave(store_recent)
 
-if nuke.env['NukeVersionMajor'] < 10:
+if nuke.env['NukeVersionMajor'] < 11:
     execfile(os.path.join(main_folder, moduleName, "main.py"))
     
     ### Import Required Modules ###
@@ -43,12 +43,12 @@ if nuke.env['NukeVersionMajor'] < 10:
 
 else:
     ### Import Required Modules ###
-    exec("from {} import main as WelcomeScreen".format(moduleName))
+    exec("from {0} import main as wsgui".format(moduleName))
 
     ### Registering Menu ###
     menu = nuke.menu('Nuke')
-    menu.addCommand( 'General/Welcome Screen', lambda f=WelcomeScreen.start : nuke.executeInMainThread(f), 'ctrl+shift+w' )
+    menu.addCommand( 'General/Welcome Screen', lambda f=wsgui.start : nuke.executeInMainThread(f), 'ctrl+shift+w' )
 
     ### Start Up Show ###
     if wsconfig.get_settings()['startup_show']:
-        nuke.executeInMainThread(WelcomeScreen.start)
+        nuke.executeInMainThread(wsgui.start)

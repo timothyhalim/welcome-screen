@@ -6,6 +6,6 @@ import re
 APP = re.findall("(\S*?)[\.\d]", os.path.basename(sys.executable))[0].upper()
 # APP command
 try:
-    exec("from .{} import command".format(APP.lower()))
+    exec("from .{0} import command".format(APP.lower()))
 except:
     from .other import command
