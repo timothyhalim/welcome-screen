@@ -9,7 +9,7 @@ except:
 import os
 
 try:
-    from component import ButtonIcon, FileBrowser, RecentList, SplashScreen, WSStyleSheet
+    from component import ButtonIcon, FileBrowser, RecentWidget, SplashScreen, WSStyleSheet
     from app import command
     import config
 except:
@@ -17,7 +17,7 @@ except:
     import inspect
     moduleName = os.path.basename(os.path.normpath(os.path.join(inspect.getframeinfo(inspect.currentframe()).filename, "..")))
     exec("""
-from {0}.component import ButtonIcon, FileBrowser, RecentList, SplashScreen, WSStyleSheet
+from {0}.component import ButtonIcon, FileBrowser, RecentWidget, SplashScreen, WSStyleSheet
 from {0}.app import command
 from {0} import config 
 """.format(moduleName))
@@ -82,22 +82,7 @@ class WelcomeScreen(SplashScreen):
         self.content_widget.addWidget(self.filebrowser_widget)
 
     def setup_recent_widget(self):
-        self.recent_widget = QWidget()
-        self.recent_search = QLineEdit()
-        self.recent_search.setStyleSheet("""color:rgb(180, 180, 180); 
-                                            padding:4px 4px 4px 20px; 
-                                            background-image:url(%s/search.png); 
-                                            background-color:transparent; 
-                                            background-position: left; 
-                                            background-repeat:no-repeat""" % config.ICON_PATH)
-        self.recent_search.setPlaceholderText("Search Recent Files")
-
-        self.recent_list = RecentList()
-
-        self.recent_widget_layout = QVBoxLayout(self.recent_widget)
-        self.recent_widget_layout.setContentsMargins(0,0,0,0)
-        self.recent_widget_layout.addWidget(self.recent_search)
-        self.recent_widget_layout.addWidget(self.recent_list)
+        self.recent_widget = RecentWidget()
         
         self.content_widget.addWidget(self.recent_widget)
         
@@ -184,12 +169,12 @@ class WelcomeScreen(SplashScreen):
         painter.drawText(QRect(x1+35, y1+35, x2-35, self.logo_height-35), Qt.AlignLeft, config.PROJECT)
 
     def init_ui(self):
-        self.connect(self.new_btn    , SIGNAL('clicked()'), self.new_cmd)
+        self.connect(self.new_btn    , SIGNAL("clicked()"), self.new_cmd)
         self.connect(self.about_btn  , SIGNAL("clicked()"), lambda target=self.about_widget, sender=self.about_btn: self.switch_to(target, sender))
 
+        recent_files = config.get_recent(config.PROJECT, config.APP)
         if hasattr(self, 'filebrowser_widget'):
             self.connect(self.open_btn   , SIGNAL("clicked()"), lambda target=self.filebrowser_widget, sender=self.open_btn: self.switch_to(target, sender))
-            recent_files = config.get_recent(config.PROJECT, config.APP)
             if recent_files:
                 latest = max(recent_files, key=lambda k : k['access_date'] )
                 self.filebrowser_widget.setRoot(os.path.dirname(latest['path']))
@@ -200,10 +185,8 @@ class WelcomeScreen(SplashScreen):
         if hasattr(self, 'recent_widget') and hasattr(self, 'recent_widget'):
             self.connect(self.recent_btn , SIGNAL("clicked()"), lambda target=self.recent_widget, sender=self.recent_btn: self.switch_to(target, sender))
             self.switch_to(self.recent_widget, self.recent_btn)
-            self.update_recent_file_list()
-
-            self.recent_search.textChanged.connect(self.update_recent_file_list)
-            self.recent_list.fileClicked.connect(self.open_cmd)
+            self.recent_widget.addItems(recent_files)
+            self.recent_widget.fileClicked.connect(self.open_cmd)
 
         if hasattr(self, 'settings_widget'):
             self.connect(self.setting_btn, SIGNAL("clicked()"), lambda target=self.settings_widget, sender=self.setting_btn: self.switch_to(target, sender))
@@ -230,14 +213,6 @@ class WelcomeScreen(SplashScreen):
         self.settings['close_on_open'] = self.settings_close_on_open.isChecked()
         self.settings['new_window'] = self.settings_open_new_window.isChecked()
         config.save_settings(self.settings)
-
-    def update_recent_file_list(self):
-        recent_files = config.get_recent(config.PROJECT, config.APP)
-        if self.recent_search.text():
-            recent_files = [f for f in recent_files if self.recent_search.text().lower() in f['path'].lower()]
-        self.recent_list.clear()
-        self.recent_list.add_items(recent_files)
-        self.update()
 
     def post_open(self):
         if self.settings['close_on_open']:
