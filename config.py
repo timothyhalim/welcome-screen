@@ -66,7 +66,7 @@ def save_recent(recent):
         recent_file.write(json.dumps(recent, indent = 4) ) 
         
 def add_recent(workfile):
-    if workfile != "":
+    if workfile:
         recent = get_recent(None, None)
         data = next((data for data in recent[PROJECT][APP] if data["path"] == workfile), None)
         if data:
@@ -76,4 +76,12 @@ def add_recent(workfile):
                 "path" : workfile,
                 "access_date" : datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             })
+        save_recent(recent)
+
+def remove_recent(workfile):
+    if workfile:
+        recent = get_recent(None, None)
+        data = next((data for data in recent[PROJECT][APP] if data["path"] == workfile), None)
+        if data:
+            recent[PROJECT][APP].remove(data)
         save_recent(recent)

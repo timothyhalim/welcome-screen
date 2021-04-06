@@ -78,12 +78,10 @@ class WelcomeScreen(SplashScreen):
 
     def setup_filebrowser_widget(self):
         self.filebrowser_widget = FileBrowser(filterExtension=command.get_app_ext())
-
         self.content_widget.addWidget(self.filebrowser_widget)
 
     def setup_recent_widget(self):
         self.recent_widget = RecentWidget()
-        
         self.content_widget.addWidget(self.recent_widget)
         
     def setup_settings_widget(self):
@@ -187,6 +185,7 @@ class WelcomeScreen(SplashScreen):
             self.switch_to(self.recent_widget, self.recent_btn)
             self.recent_widget.addItems(recent_files)
             self.recent_widget.fileClicked.connect(self.open_cmd)
+            self.recent_widget.removeFiles.connect(self.remove_recents)
 
         if hasattr(self, 'settings_widget'):
             self.connect(self.setting_btn, SIGNAL("clicked()"), lambda target=self.settings_widget, sender=self.setting_btn: self.switch_to(target, sender))
@@ -213,6 +212,10 @@ class WelcomeScreen(SplashScreen):
         self.settings['close_on_open'] = self.settings_close_on_open.isChecked()
         self.settings['new_window'] = self.settings_open_new_window.isChecked()
         config.save_settings(self.settings)
+
+    def remove_recents(self, filepaths):
+        for filepath in filepaths:
+            config.remove_recent(filepath)
 
     def post_open(self):
         if self.settings['close_on_open']:

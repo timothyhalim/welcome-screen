@@ -93,19 +93,24 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal, QScrollBar::ad
 QPushButton {
 	background-color: #555;
 	border: 2px solid #555;
-	border-radius: 4px;
 	padding: 5px;
+	border-radius: 4px;
 	padding-left: 5px;
 	padding-right: 5px;
 }
 QPushButton:hover{
 	color: #FFC132;
 	border-color: #FFC132;
-	background-color: #232323;
 }
-QPushButton:pressed {
+QPushButton:pressed, QPushButton:checked {
 	color: #232323;
 	border-color: #FFC132;
 	background-color: #FFC132;
+}
+QPushButton:checked{
+	color: #FFC132;
+	border-color: #FFC132;
+	background-color: #232323;
+	font-weight: bold;
 }
 '''
