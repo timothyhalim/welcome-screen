@@ -188,6 +188,7 @@ class RecentWidget(QWidget):
         self.filterList()
 
     def addItems(self, fileInfos):
+        fileInfos.sort(key=lambda k:k['access_date'])
         for fileInfo in fileInfos:
             self.addItem(fileInfo)
 
