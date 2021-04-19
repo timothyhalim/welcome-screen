@@ -469,6 +469,8 @@ class FileBrowser(QWidget):
         if search:
             path = search.group(1)
 
+        path = path.replace("\\", "/")
+
         return path
 
     def changeCurrentPath(self, path):
