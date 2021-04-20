@@ -16,8 +16,6 @@ except:
 
 
 class ButtonIcon(QPushButton):
-    clicked = Signal(object)
-
     def __init__(self, name=None, icon="", iconsize=40):
         super(ButtonIcon, self).__init__()
 
