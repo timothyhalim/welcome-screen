@@ -17,87 +17,88 @@ if not main_folder in sys.path:
     sys.path.append(main_folder)
 
 ### Import Required Modules ###
-exec("""
-from {0} import main as WelcomeScreen
-from {0} import config as wsconfig
+if not cmds.about(batch=True):
+    exec("""
+    from {0} import main as WelcomeScreen
+    from {0} import config as wsconfig
 
-""".format(moduleName))
-reload(WelcomeScreen)
-reload(wsconfig)
+    """.format(moduleName))
+    reload(WelcomeScreen)
+    reload(wsconfig)
 
-### Registering Callback ###
-def store_recent(*args, **kwargs):
-    wsconfig.add_recent( cmds.file(sn=True, q=True) )
+    ### Registering Callback ###
+    def store_recent(*args, **kwargs):
+        wsconfig.add_recent( cmds.file(sn=True, q=True) )
 
-def registerCallbacks():
-    referencesCallback = [
-        om.MSceneMessage.addCallback(om.MSceneMessage.kAfterOpen, store_recent),
-        om.MSceneMessage.addCallback(om.MSceneMessage.kAfterSave, store_recent)
-    ]
-    print("WelcomeScreen Callback Registered")
-    return referencesCallback
-    
-def unregisterCallbacks(referencesCallback):
-    for cb in referencesCallback:
-        om.MMessage.removeCallback(cb)
-
-try:
-    if welcomescreencallback:
-        print("Already Initialized")
-        pass
-except:
-    welcomescreencallback = registerCallbacks()
+    def registerCallbacks():
+        referencesCallback = [
+            om.MSceneMessage.addCallback(om.MSceneMessage.kAfterOpen, store_recent),
+            om.MSceneMessage.addCallback(om.MSceneMessage.kAfterSave, store_recent)
+        ]
+        print("WelcomeScreen Callback Registered")
+        return referencesCallback
         
-### Registering HotKey ###
-name = "WelcomeScreen"
-annotation = "Welcome Screen Show"
-command = "from {0} import main as WelcomeScreen; WelcomeScreen.start()".format(moduleName)
+    def unregisterCallbacks(referencesCallback):
+        for cb in referencesCallback:
+            om.MMessage.removeCallback(cb)
 
-try:
-    if welcomescreeninitialized:
-        print("Already Registered")
-        pass
-except:
-    if cmds.runTimeCommand(name, q=True, exists=True):
-        cmds.runTimeCommand(name, e=True, delete=True)
-    if not cmds.runTimeCommand(name, q=True, exists=True):
-        cmds.runTimeCommand(
-                name,
-                annotation=annotation,
-                command=command,
-                commandLanguage="python",
-                category="Custom Scripts"
-            )
+    try:
+        if welcomescreencallback:
+            print("Already Initialized")
+            pass
+    except:
+        welcomescreencallback = registerCallbacks()
             
-        cmds.nameCommand(
-                "{0}NameCommand".format(name),
-                annotation=annotation,
-                command=name
-            )
+    ### Registering HotKey ###
+    name = "WelcomeScreen"
+    annotation = "Welcome Screen Show"
+    command = "from {0} import main as WelcomeScreen; WelcomeScreen.start()".format(moduleName)
+
+    try:
+        if welcomescreeninitialized:
+            print("Already Registered")
+            pass
+    except:
+        if cmds.runTimeCommand(name, q=True, exists=True):
+            cmds.runTimeCommand(name, e=True, delete=True)
+        if not cmds.runTimeCommand(name, q=True, exists=True):
+            cmds.runTimeCommand(
+                    name,
+                    annotation=annotation,
+                    command=command,
+                    commandLanguage="python",
+                    category="Custom Scripts"
+                )
+                
+            cmds.nameCommand(
+                    "{0}NameCommand".format(name),
+                    annotation=annotation,
+                    command=name
+                )
+            
+        if cmds.hotkeySet(q=True, current=True) == "Maya_Default":
+            if not cmds.hotkeySet("Custom", q=True, exists=True):
+                cmds.hotkeySet("Custom", current=True)
+            else:
+                cmds.hotkeySet("Custom", edit=True, current=True)
+                
+            cmds.hotkey (
+                    keyShortcut = "w",
+                    ctl = True,
+                    sht = True,
+                    name = "{0}NameCommand".format(name)
+                )
+
+        ### Register Menu ###
+        MainMayaWindow = mel.eval('$tmpVar=$gMainWindow')
+        if cmds.menu('MayaWindow|Welcome_Screen', q=True, ex=True):
+            cmds.deleteUI(cmds.menu('MayaWindow|Welcome_Screen', e=1, dai=True))
+
+        customMenu = cmds.menu('Welcome Screen', parent=MainMayaWindow)
+        mn = mel.eval('''menuItem -label "Welcome Screen Show" -command {0} -parent "MayaWindow|Welcome_Screen" show'''.format(name) )
         
-    if cmds.hotkeySet(q=True, current=True) == "Maya_Default":
-        if not cmds.hotkeySet("Custom", q=True, exists=True):
-            cmds.hotkeySet("Custom", current=True)
-        else:
-            cmds.hotkeySet("Custom", edit=True, current=True)
-            
-        cmds.hotkey (
-                keyShortcut = "w",
-                ctl = True,
-                sht = True,
-                name = "{0}NameCommand".format(name)
-            )
+        welcomescreeninitialized = True
 
-    ### Register Menu ###
-    MainMayaWindow = mel.eval('$tmpVar=$gMainWindow')
-    if cmds.menu('MayaWindow|Welcome_Screen', q=True, ex=True):
-        cmds.deleteUI(cmds.menu('MayaWindow|Welcome_Screen', e=1, dai=True))
-
-    customMenu = cmds.menu('Welcome Screen', parent=MainMayaWindow)
-    mn = mel.eval('''menuItem -label "Welcome Screen Show" -command {0} -parent "MayaWindow|Welcome_Screen" show'''.format(name) )
-    
-    welcomescreeninitialized = True
-
-### Start Up Show ###
-if wsconfig.get_settings()['startup_show']:
-	WelcomeScreen.start()
+    ### Start Up Show ###
+    if wsconfig.get_settings()['startup_show']:
+        WelcomeScreen.start()
